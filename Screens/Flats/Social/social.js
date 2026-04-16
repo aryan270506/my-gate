@@ -256,69 +256,23 @@ function RaiseAlertModal({ visible, onClose }) {
   );
 }
 
-function GuestInviteModal({ visible, onClose }) {
-  return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}
-    >
-      <View style={styles.guestInviteOverlay}>
-        <View style={styles.guestInviteModalContainer}>
-          <View style={styles.guestInviteDragHandle} />
-          
-          <View style={styles.guestInviteHeader}>
-            <Text style={styles.guestInviteTitle}>Guest Invite</Text>
-            <TouchableOpacity onPress={onClose}>
-              <Ionicons name="close" size={24} color="#4A4A4A" />
-            </TouchableOpacity>
-          </View>
-          
-          <Text style={styles.guestInviteSubtitle}>
-            Create pre-approval of expected visitors to ensure hassle-free entry for them
-          </Text>
 
-          <TouchableOpacity style={styles.guestInviteOption} activeOpacity={0.7}>
-            <Text style={styles.guestInviteOptionTitle}>Quick Invite &gt;</Text>
-            <Text style={styles.guestInviteOptionDescription}>Ensure smooth entry by manually pre-approving guests. Best for small, personal gatherings.</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.guestInviteOption} activeOpacity={0.7}>
-            <Text style={styles.guestInviteOptionTitle}>Party/Group Invite &gt;</Text>
-            <Text style={styles.guestInviteOptionDescription}>Create a common guest invite link with a limit for large gatherings and easy tracking.</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.guestInviteOption} activeOpacity={0.7}>
-            <Text style={styles.guestInviteOptionTitle}>Frequent Invite &gt;</Text>
-            <Text style={styles.guestInviteOptionDescription}>Invite long-term guests with a single passcode, without repeated approvals.</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.guestInviteOption} activeOpacity={0.7}>
-            <Text style={styles.guestInviteOptionTitle}>Private Invite &gt;</Text>
-            <Text style={styles.guestInviteOptionDescription}>This allows silent entries of your guests without disturbing others</Text>
-          </TouchableOpacity>
-
-          <View style={styles.guestInviteFooter}>
-            <Text style={styles.guestInviteFooterText}>G9 802</Text>
-            <Text style={styles.guestInviteFooterBadge}>Ad-Supported</Text>
-          </View>
-        </View>
-      </View>
-    </Modal>
-  );
-}
 
 export default function SocialScreen() {
   const [showQuickActions, setShowQuickActions] = useState(false);
-  const [showGuestInvite, setShowGuestInvite] = useState(false);
   const [showRaiseAlert, setShowRaiseAlert] = useState(false);
+  
 
+  // Removed Guest Invite handler - now does nothing
   const handleQuickItemPress = (itemLabel) => {
-    if (itemLabel === 'Invite\nGuest') {
-      setShowGuestInvite(true);
-    }
+    // Guest Invite option removed - no action
+    console.log('Pressed:', itemLabel);
   };
+
+  const handleHomeActionPress = (actionLabel) => {
+  // Pre-approve does nothing now
+  console.log('Pressed:', actionLabel);
+};
 
   const handleRaiseAlert = () => {
     setShowQuickActions(false);
@@ -372,7 +326,12 @@ export default function SocialScreen() {
 
           <View style={styles.actionsGrid}>
             {homeActions.map((action) => (
-              <TouchableOpacity key={action.label} style={styles.actionCard} activeOpacity={0.85}>
+              <TouchableOpacity 
+                key={action.label} 
+                style={styles.actionCard} 
+                activeOpacity={0.85}
+                onPress={() => handleHomeActionPress(action.label)}
+              >
                 <View style={styles.actionIconCircle}>
                   <Ionicons name={action.icon} size={18} color="#7D755F" />
                 </View>
@@ -484,17 +443,13 @@ export default function SocialScreen() {
         </SafeAreaView>
       </Modal>
 
-      {/* Guest Invite Options Modal */}
-      <GuestInviteModal 
-        visible={showGuestInvite} 
-        onClose={() => setShowGuestInvite(false)} 
-      />
-
       {/* Raise Alert Modal */}
       <RaiseAlertModal 
         visible={showRaiseAlert} 
         onClose={handleCloseRaiseAlert}
       />
+
+     
     </SafeAreaView>
   );
 }
@@ -857,87 +812,6 @@ const styles = StyleSheet.create({
     color: '#1C2B2F',
     textAlign: 'center',
   },
-  // Guest Invite Modal Styles
-  guestInviteOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  guestInviteModalContainer: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 30,
-  },
-  guestInviteDragHandle: {
-    width: 40,
-    height: 4,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginBottom: 16,
-  },
-  guestInviteHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  guestInviteTitle: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#1A1A1A',
-  },
-  guestInviteSubtitle: {
-    fontSize: 14,
-    color: '#666666',
-    marginBottom: 24,
-    lineHeight: 20,
-  },
-  guestInviteOption: {
-    backgroundColor: '#F8F8F8',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#EEEEEE',
-  },
-  guestInviteOptionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#2C2C2C',
-    marginBottom: 8,
-  },
-  guestInviteOptionDescription: {
-    fontSize: 13,
-    color: '#888888',
-    lineHeight: 18,
-  },
-  guestInviteFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 20,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-  },
-  guestInviteFooterText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#999999',
-  },
-  guestInviteFooterBadge: {
-    fontSize: 10,
-    fontWeight: '500',
-    color: '#AAAAAA',
-    backgroundColor: '#F5F5F5',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
   // Raise Alert Modal Styles
   alertOverlay: {
     flex: 1,
@@ -1079,7 +953,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   raiseAlarmButton: {
-    backgroundColor: '#f05759',
+    backgroundColor: 'rgb(247, 80, 80)',
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
@@ -1120,6 +994,109 @@ const styles = StyleSheet.create({
   noUpdatesText: {
     fontSize: 14,
     color: '#999',
+    marginTop: 8,
+  },
+  // Pre-approve Modal Styles
+  preApproveOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  preApproveModalContainer: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 30,
+  },
+  preApproveDragHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  preApproveCloseX: {
+    position: 'absolute',
+    top: 12,
+    right: 20,
+    zIndex: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  preApproveHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  preApproveTitle: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#1A1A1A',
+  },
+  preApproveAdBadge: {
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  preApproveAdBadgeText: {
+    fontSize: 12,
+    color: '#999',
+    fontWeight: '500',
+  },
+  preApproveSubtitle: {
+    fontSize: 16,
+    color: '#666666',
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  preApproveOptionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+  },
+  preApproveOption: {
+    width: '48%',
+    backgroundColor: '#F8F8F8',
+    borderRadius: 16,
+    paddingVertical: 20,
+    alignItems: 'center',
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#EEEEEE',
+  },
+  preApproveOptionIconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  preApproveOptionText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2C3E50',
+    textAlign: 'center',
+  },
+  preApproveFooterNote: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'center',
     marginTop: 8,
   },
 });
