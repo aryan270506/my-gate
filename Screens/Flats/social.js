@@ -110,7 +110,7 @@ const quickActionSections = [
   },
 ];
 
-function SectionAction({ title, actionText, actionIcon }) {
+function SectionAction({ title, actionText, actionIcon, onRaiseAlert }) {
   if (!actionText) {
     return <Text style={styles.quickSectionTitle}>{title}</Text>;
   }
@@ -123,6 +123,7 @@ function SectionAction({ title, actionText, actionIcon }) {
       <TouchableOpacity
         activeOpacity={0.85}
         style={isAlert ? styles.raiseAlertButton : styles.sectionLinkButton}
+        onPress={isAlert ? onRaiseAlert : undefined}
       >
         {actionIcon ? (
           <Ionicons
@@ -139,11 +140,16 @@ function SectionAction({ title, actionText, actionIcon }) {
   );
 }
 
-function QuickGrid({ items }) {
+function QuickGrid({ items, onItemPress }) {
   return (
     <View style={styles.quickGrid}>
       {items.map((item) => (
-        <TouchableOpacity key={item.label} style={styles.quickTile} activeOpacity={0.85}>
+        <TouchableOpacity
+          key={item.label}
+          style={styles.quickTile}
+          activeOpacity={0.85}
+          onPress={() => onItemPress && onItemPress(item.label)}
+        >
           <View style={styles.quickTileIconBox}>
             <Ionicons name={item.icon} size={29} color="#20353A" />
           </View>
@@ -154,8 +160,175 @@ function QuickGrid({ items }) {
   );
 }
 
+function RaiseAlertModal({ visible, onClose }) {
+  return (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
+      <View style={styles.alertOverlay}>
+        <View style={styles.alertModalContainer}>
+          {/* Drag Handle */}
+          <View style={styles.alertDragHandle} />
+          
+          {/* Close X Button */}
+          <TouchableOpacity style={styles.alertCloseX} onPress={onClose} activeOpacity={0.7}>
+            <Ionicons name="close" size={24} color="#4A4A4A" />
+          </TouchableOpacity>
+
+          {/* Header with G9 802 and Ad-Supported */}
+          <View style={styles.alertHeader}>
+            <Text style={styles.alertTitle}>G9 802</Text>
+            <View style={styles.adBadge}>
+              <Text style={styles.adBadgeText}>Ad-Supported</Text>
+            </View>
+          </View>
+
+          {/* For moments that don't need going out */}
+          <Text style={styles.alertSubtitle}>
+            For moments{"\n"}that don't need going out
+          </Text>
+
+          {/* Yellow Circle Icon in Center */}
+          <View style={styles.centerIconContainer}>
+            <View style={styles.yellowCircle}>
+              <Ionicons name="alert" size={50} color="#FF8C00" />
+            </View>
+          </View>
+
+          {/* 4 Alert Options */}
+          <View style={styles.alertOptionsGrid}>
+            <TouchableOpacity style={styles.alertOption} activeOpacity={0.7}>
+              <Text style={styles.alertOptionText}>Fire</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.alertOption} activeOpacity={0.7}>
+              <Text style={styles.alertOptionText}>Stuck In Lift</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.alertOption} activeOpacity={0.7}>
+              <Text style={styles.alertOptionText}>Animal Threat</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.alertOption} activeOpacity={0.7}>
+              <Text style={styles.alertOptionText}>Visitor Threat</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Any Other Issue */}
+          <TouchableOpacity style={styles.otherIssueButton} activeOpacity={0.7}>
+            <Text style={styles.otherIssueText}>Any Other Issue</Text>
+            <Ionicons name="chevron-forward" size={20} color="#999" />
+          </TouchableOpacity>
+
+          {/* Notify my alert list */}
+          <View style={styles.notifySection}>
+            <Text style={styles.notifyLabel}>Notify my alert list</Text>
+            <TouchableOpacity style={styles.addButton} activeOpacity={0.7}>
+              <Ionicons name="add-circle-outline" size={24} color="#1D97E8" />
+              <Text style={styles.addButtonText}>Add</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Society Security */}
+          <Text style={styles.societySecurityText}>Society Security</Text>
+
+          {/* Raise Alarm Button - Light Yellow */}
+          <TouchableOpacity style={styles.raiseAlarmButton} activeOpacity={0.8}>
+            <Text style={styles.raiseAlarmText}>Raise Alarm</Text>
+          </TouchableOpacity>
+
+          {/* Updates Section */}
+          <View style={styles.updatesSection}>
+            <View style={styles.updatesHeader}>
+              <Text style={styles.updatesTitle}>Updates</Text>
+              <TouchableOpacity>
+                <Text style={styles.viewAllText}>View All</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.noUpdatesContainer}>
+              <Ionicons name="notifications-outline" size={32} color="#E1DBCF" />
+              <Text style={styles.noUpdatesText}>No updates yet</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+function GuestInviteModal({ visible, onClose }) {
+  return (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
+      <View style={styles.guestInviteOverlay}>
+        <View style={styles.guestInviteModalContainer}>
+          <View style={styles.guestInviteDragHandle} />
+          
+          <View style={styles.guestInviteHeader}>
+            <Text style={styles.guestInviteTitle}>Guest Invite</Text>
+            <TouchableOpacity onPress={onClose}>
+              <Ionicons name="close" size={24} color="#4A4A4A" />
+            </TouchableOpacity>
+          </View>
+          
+          <Text style={styles.guestInviteSubtitle}>
+            Create pre-approval of expected visitors to ensure hassle-free entry for them
+          </Text>
+
+          <TouchableOpacity style={styles.guestInviteOption} activeOpacity={0.7}>
+            <Text style={styles.guestInviteOptionTitle}>Quick Invite &gt;</Text>
+            <Text style={styles.guestInviteOptionDescription}>Ensure smooth entry by manually pre-approving guests. Best for small, personal gatherings.</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.guestInviteOption} activeOpacity={0.7}>
+            <Text style={styles.guestInviteOptionTitle}>Party/Group Invite &gt;</Text>
+            <Text style={styles.guestInviteOptionDescription}>Create a common guest invite link with a limit for large gatherings and easy tracking.</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.guestInviteOption} activeOpacity={0.7}>
+            <Text style={styles.guestInviteOptionTitle}>Frequent Invite &gt;</Text>
+            <Text style={styles.guestInviteOptionDescription}>Invite long-term guests with a single passcode, without repeated approvals.</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.guestInviteOption} activeOpacity={0.7}>
+            <Text style={styles.guestInviteOptionTitle}>Private Invite &gt;</Text>
+            <Text style={styles.guestInviteOptionDescription}>This allows silent entries of your guests without disturbing others</Text>
+          </TouchableOpacity>
+
+          <View style={styles.guestInviteFooter}>
+            <Text style={styles.guestInviteFooterText}>G9 802</Text>
+            <Text style={styles.guestInviteFooterBadge}>Ad-Supported</Text>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 export default function SocialScreen() {
   const [showQuickActions, setShowQuickActions] = useState(false);
+  const [showGuestInvite, setShowGuestInvite] = useState(false);
+  const [showRaiseAlert, setShowRaiseAlert] = useState(false);
+
+  const handleQuickItemPress = (itemLabel) => {
+    if (itemLabel === 'Invite\nGuest') {
+      setShowGuestInvite(true);
+    }
+  };
+
+  const handleRaiseAlert = () => {
+    setShowQuickActions(false);
+    setShowRaiseAlert(true);
+  };
+
+  const handleCloseRaiseAlert = () => {
+    setShowRaiseAlert(false);
+    setShowQuickActions(true);
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -263,6 +436,7 @@ export default function SocialScreen() {
         </ScrollView>
       </View>
 
+      {/* Quick Actions Modal */}
       <Modal
         animationType="slide"
         visible={showQuickActions}
@@ -292,21 +466,35 @@ export default function SocialScreen() {
               />
             </View>
 
-           
-
             {quickActionSections.map((section) => (
               <View key={section.title} style={styles.quickSection}>
                 <SectionAction
                   title={section.title}
                   actionText={section.actionText}
                   actionIcon={section.actionIcon}
+                  onRaiseAlert={handleRaiseAlert}
                 />
-                <QuickGrid items={section.items} />
+                <QuickGrid 
+                  items={section.items} 
+                  onItemPress={handleQuickItemPress}
+                />
               </View>
             ))}
           </ScrollView>
         </SafeAreaView>
       </Modal>
+
+      {/* Guest Invite Options Modal */}
+      <GuestInviteModal 
+        visible={showGuestInvite} 
+        onClose={() => setShowGuestInvite(false)} 
+      />
+
+      {/* Raise Alert Modal */}
+      <RaiseAlertModal 
+        visible={showRaiseAlert} 
+        onClose={handleCloseRaiseAlert}
+      />
     </SafeAreaView>
   );
 }
@@ -600,73 +788,6 @@ const styles = StyleSheet.create({
     color: '#223236',
     marginLeft: 12,
   },
-  bannerCard: {
-    borderRadius: 24,
-    backgroundColor: '#5A2BD1',
-    paddingVertical: 18,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 28,
-  },
-  bannerLogo: {
-    width: 58,
-    height: 58,
-    borderRadius: 14,
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 14,
-  },
-  bannerLogoText: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: '#5A2BD1',
-  },
-  bannerTextWrap: {
-    flex: 1,
-  },
-  bannerTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    fontStyle: 'italic',
-    color: '#FFFFFF',
-  },
-  bannerSubRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-    flexWrap: 'wrap',
-  },
-  bannerSubtitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#E9E0FF',
-    marginRight: 8,
-  },
-  bannerTag: {
-    borderRadius: 999,
-    backgroundColor: '#17A45F',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  bannerTagText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  bannerButton: {
-    borderRadius: 16,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    marginLeft: 10,
-  },
-  bannerButtonText: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#181818',
-  },
   quickSection: {
     marginBottom: 28,
   },
@@ -735,5 +856,270 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#1C2B2F',
     textAlign: 'center',
+  },
+  // Guest Invite Modal Styles
+  guestInviteOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  guestInviteModalContainer: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 30,
+  },
+  guestInviteDragHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  guestInviteHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  guestInviteTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#1A1A1A',
+  },
+  guestInviteSubtitle: {
+    fontSize: 14,
+    color: '#666666',
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  guestInviteOption: {
+    backgroundColor: '#F8F8F8',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#EEEEEE',
+  },
+  guestInviteOptionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#2C2C2C',
+    marginBottom: 8,
+  },
+  guestInviteOptionDescription: {
+    fontSize: 13,
+    color: '#888888',
+    lineHeight: 18,
+  },
+  guestInviteFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 20,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+  },
+  guestInviteFooterText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#999999',
+  },
+  guestInviteFooterBadge: {
+    fontSize: 10,
+    fontWeight: '500',
+    color: '#AAAAAA',
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  // Raise Alert Modal Styles
+  alertOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  alertModalContainer: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 30,
+    maxHeight: '90%',
+  },
+  alertDragHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  alertCloseX: {
+    position: 'absolute',
+    top: 12,
+    right: 20,
+    zIndex: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  alertHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  alertTitle: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#1A1A1A',
+  },
+  adBadge: {
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  adBadgeText: {
+    fontSize: 12,
+    color: '#999',
+    fontWeight: '500',
+  },
+  alertSubtitle: {
+    fontSize: 16,
+    color: '#666666',
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  centerIconContainer: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  yellowCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#FFE5B4',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  alertOptionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  alertOption: {
+    width: '48%',
+    backgroundColor: '#F8F8F8',
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#EEEEEE',
+  },
+  alertOptionText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'center',
+  },
+  otherIssueButton: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+    marginBottom: 20,
+  },
+  otherIssueText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  notifySection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    marginBottom: 16,
+  },
+  notifyLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  addButtonText: {
+    fontSize: 16,
+    color: '#1D97E8',
+    marginLeft: 4,
+    fontWeight: '600',
+  },
+  societySecurityText: {
+    fontSize: 14,
+    color: '#999',
+    fontWeight: '500',
+    marginBottom: 24,
+  },
+  raiseAlarmButton: {
+    backgroundColor: '#f05759',
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  raiseAlarmText: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#f9f5f5',
+  },
+  updatesSection: {
+    marginBottom: 10,
+  },
+  updatesHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  updatesTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#333',
+  },
+  viewAllText: {
+    fontSize: 14,
+    color: '#1D97E8',
+    fontWeight: '600',
+  },
+  noUpdatesContainer: {
+    backgroundColor: '#F8F8F8',
+    borderRadius: 16,
+    paddingVertical: 30,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#EEEEEE',
+  },
+  noUpdatesText: {
+    fontSize: 14,
+    color: '#999',
+    marginTop: 8,
   },
 });
