@@ -200,20 +200,85 @@ export default function SocietyScreen({ setIsLoggedIn }) {
       return;
     }
     setLoading(true);
-    // Simulate API call
-    await new Promise((r) => setTimeout(r, 1800));
-    setLoading(false);
-    setSubmitted(true);
-    Animated.spring(successScale, { toValue: 1, useNativeDriver: true, tension: 80, friction: 8 }).start();
-    setTimeout(() => {
-      setSubmitted(false);
-      successScale.setValue(0);
-      closeCard();
-      setFields({ fullName: '', email: '', mobile: '', flatNumber: '', password: '' });
-      setUploadedFile(null);
-      setErrors({});
-      setIsLoggedIn(true);
-    }, 2200);
+    try {
+      // Mock login for testing without backend
+      // TODO: Replace with actual API call when backend is ready
+      const BACKEND_URL = 'http://localhost:3000';
+      const endpoint = cardMode === 'login' ? '/auth/login' : '/auth/register';
+      
+      let response;
+      try {
+        response = await fetch(BACKEND_URL + endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: fields.email,
+            password: fields.password,
+            ...(cardMode === 'signup' && {
+              fullName: fields.fullName,
+              mobile: fields.mobile,
+              flatNumber: fields.flatNumber,
+            }),
+          }),
+          timeout: 5000,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          setLoading(false);
+          if (response.status === 500) {
+            Alert.alert('Server Error', 'The server encountered an error. Please try again later or contact support.');
+          } else if (response.status === 401) {
+            Alert.alert('Authentication Failed', 'Invalid email or password.');
+          } else if (response.status === 400) {
+            Alert.alert('Invalid Input', data.message || 'Please check your information and try again.');
+          } else {
+            Alert.alert('Error', data.message || `Error ${response.status}: ${response.statusText}`);
+          }
+          return;
+        }
+      } catch (fetchError) {
+        // Backend not available - use mock mode
+        console.warn('Backend unavailable, using mock login mode. Error:', fetchError.message);
+        
+        // Simulate successful auth for testing
+        if (cardMode === 'login') {
+          // Accept any valid email/password for testing
+          console.log('Mock Login:', { email: fields.email, password: fields.password });
+        } else {
+          // Mock signup
+          console.log('Mock Signup:', {
+            fullName: fields.fullName,
+            email: fields.email,
+            mobile: fields.mobile,
+            flatNumber: fields.flatNumber,
+          });
+        }
+        
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 800));
+      }
+
+      setLoading(false);
+      setSubmitted(true);
+      Animated.spring(successScale, { toValue: 1, useNativeDriver: true, tension: 80, friction: 8 }).start();
+      setTimeout(() => {
+        setSubmitted(false);
+        successScale.setValue(0);
+        closeCard();
+        setFields({ fullName: '', email: '', mobile: '', flatNumber: '', password: '' });
+        setUploadedFile(null);
+        setErrors({});
+        setIsLoggedIn(true);
+      }, 2200);
+    } catch (error) {
+      setLoading(false);
+      console.error('Login error:', error);
+      Alert.alert('Error', error.message || 'Something went wrong. Please try again.');
+    }
   };
 
   const pwStrength = passwordStrength(fields.password);
