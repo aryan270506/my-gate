@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   Modal,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -10,7 +9,19 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { PreApproveModal, DailyHelpScreen, DeliveriesScreen, VisitorsScreen } from './Social Features/Social-features';
+import { InviteGuestModal } from './View More Files/Visitors & Security/Invite-guest';
+import { AllowKidExitModal } from './View More Files/Visitors & Security/Allow-Kid-Exit';
+import { AllowDeliveryModal } from './View More Files/Visitors & Security/Allow-Delivery';
+import { CabAutoModal } from './View More Files/Visitors & Security/cab-auto';
+import { CallSecurityModal } from './View More Files/Visitors & Security/Call-Security';
+import { MessageGuardModal } from './View More Files/Visitors & Security/Message-Guard';
+import { MyPassesModal } from './View More Files/Visitors & Security/My-Passes';
+import { VisitingHelpModal } from './View More Files/Visitors & Security/Visiting-help';
+import { ClassesModal, CommunicationsModal, FindDailyHelpModal, SearchVehicleModal } from './View More Files/Community';
+import { CreatePostModal, CreatePollModal, HostEventModal, MyPostsModal } from './View More Files/Feed';
 
 const homeActions = [
   { label: 'Visitors', icon: 'people-outline' },
@@ -256,23 +267,110 @@ function RaiseAlertModal({ visible, onClose }) {
   );
 }
 
-
-
 export default function SocialScreen() {
   const [showQuickActions, setShowQuickActions] = useState(false);
   const [showRaiseAlert, setShowRaiseAlert] = useState(false);
-  
+  const [showPreApprove, setShowPreApprove] = useState(false);
+  const [showDailyHelp, setShowDailyHelp] = useState(false);
+  const [showDeliveries, setShowDeliveries] = useState(false);
+  const [showVisitors, setShowVisitors] = useState(false);
+  const [showInviteGuest, setShowInviteGuest] = useState(false);
+  const [showAllowKidExit, setShowAllowKidExit] = useState(false);
+  const [showAllowDelivery, setShowAllowDelivery] = useState(false);
+  const [showCabAuto, setShowCabAuto] = useState(false);
+  const [showCallSecurity, setShowCallSecurity] = useState(false);
+  const [showMessageGuard, setShowMessageGuard] = useState(false);
+  const [showMyPasses, setShowMyPasses] = useState(false);
+  const [showVisitingHelp, setShowVisitingHelp] = useState(false);
+  const [showClasses, setShowClasses] = useState(false);
+  const [showCommunications, setShowCommunications] = useState(false);
+  const [showFindDailyHelp, setShowFindDailyHelp] = useState(false);
+  const [showSearchVehicle, setShowSearchVehicle] = useState(false);
+  const [showCreatePost, setShowCreatePost] = useState(false);
+  const [showCreatePoll, setShowCreatePoll] = useState(false);
+  const [showHostEvent, setShowHostEvent] = useState(false);
+  const [showMyPosts, setShowMyPosts] = useState(false);
 
-  // Removed Guest Invite handler - now does nothing
+  // Handle Quick Item Press
   const handleQuickItemPress = (itemLabel) => {
-    // Guest Invite option removed - no action
-    console.log('Pressed:', itemLabel);
+    switch (itemLabel) {
+      case 'Invite\nGuest':
+        setShowInviteGuest(true);
+        break;
+      case 'Cab/Auto':
+        setShowCabAuto(true);
+        break;
+      case 'Allow\nDelivery':
+        setShowAllowDelivery(true);
+        break;
+      case 'Visiting\nHelp':
+        setShowVisitingHelp(true);
+        break;
+      case 'Call\nSecurity':
+        setShowCallSecurity(true);
+        break;
+      case 'Message\nGuard':
+        setShowMessageGuard(true);
+        break;
+      case 'MyPasses':
+        setShowMyPasses(true);
+        break;
+      case 'Allow Kid\nExit':
+        setShowAllowKidExit(true);
+        break;
+      case 'Communic\nations':
+        setShowCommunications(true);
+        break;
+      case 'Search\nVehicle':
+        setShowSearchVehicle(true);
+        break;
+      case 'Find Daily\nHelp':
+        setShowFindDailyHelp(true);
+        break;
+      case 'Classes':
+        setShowClasses(true);
+        break;
+      case 'Create Post':
+        setShowCreatePost(true);
+        break;
+      case 'Create poll':
+        setShowCreatePoll(true);
+        break;
+      case 'Host an\nEvent':
+        setShowHostEvent(true);
+        break;
+      case 'My Posts':
+        setShowMyPosts(true);
+        break;
+      default:
+        console.log('Pressed:', itemLabel);
+    }
   };
 
-  const handleHomeActionPress = (actionLabel) => {
-  // Pre-approve does nothing now
-  console.log('Pressed:', actionLabel);
+  // Update handleHomeActionPress function
+const handleHomeActionPress = (actionLabel) => {
+  if (actionLabel === 'Pre-approve') {
+    setShowPreApprove(true);
+  } else if (actionLabel === 'Daily Help') {
+    setShowDailyHelp(true);
+  } else if (actionLabel === 'Deliveries') {
+    setShowDeliveries(true);
+  } else if (actionLabel === 'Visitors') {
+    setShowVisitors(true);
+  } else {
+    console.log('Pressed:', actionLabel);
+  }
 };
+
+  // Add close handler for deliveries
+const handleCloseDeliveries = () => {
+  setShowDeliveries(false);
+};
+
+const handleCloseVisitors = () => {
+  setShowVisitors(false);
+};
+
 
   const handleRaiseAlert = () => {
     setShowQuickActions(false);
@@ -283,6 +381,65 @@ export default function SocialScreen() {
     setShowRaiseAlert(false);
     setShowQuickActions(true);
   };
+
+  const handleClosePreApprove = () => {
+    setShowPreApprove(false); // ← CLOSE PRE-APPROVE MODAL
+  };
+
+  const handlePreApproveOptionSelect = (option) => {
+    console.log('Pre-approve option selected:', option);
+    // Navigate to the appropriate screen based on selected option
+    switch (option) {
+      case 'Guest':
+        setShowInviteGuest(true);
+        break;
+      case 'Cab':
+        setShowCabAuto(true);
+        break;
+      case 'Delivery':
+        setShowAllowDelivery(true);
+        break;
+      case 'Visiting Help':
+        setShowVisitingHelp(true);
+        break;
+      default:
+        console.log('Unknown option:', option);
+    }
+  };
+   
+  const handleCloseDailyHelp = () => {
+  setShowDailyHelp(false);
+};
+
+const handleCloseInviteGuest = () => {
+  setShowInviteGuest(false);
+};
+
+const handleSelectInviteOption = (option) => {
+  console.log('Selected invite option:', option.title);
+  // Add logic here to handle different invite options
+  // For now, just logging the selected option
+};
+
+// Close handlers for all modals
+const handleCloseAllowKidExit = () => setShowAllowKidExit(false);
+const handleCloseAllowDelivery = () => setShowAllowDelivery(false);
+const handleCloseCabAuto = () => setShowCabAuto(false);
+const handleCloseCallSecurity = () => setShowCallSecurity(false);
+const handleCloseMessageGuard = () => setShowMessageGuard(false);
+const handleCloseMyPasses = () => setShowMyPasses(false);
+const handleCloseVisitingHelp = () => setShowVisitingHelp(false);
+const handleCloseClasses = () => setShowClasses(false);
+const handleCloseCommunications = () => setShowCommunications(false);
+const handleCloseFindDailyHelp = () => setShowFindDailyHelp(false);
+const handleCloseSearchVehicle = () => setShowSearchVehicle(false);
+
+// Close handlers for Feed modals
+const handleCloseCreatePost = () => setShowCreatePost(false);
+const handleCloseCreatePoll = () => setShowCreatePoll(false);
+const handleCloseHostEvent = () => setShowHostEvent(false);
+const handleCloseMyPosts = () => setShowMyPosts(false);
+
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -449,7 +606,126 @@ export default function SocialScreen() {
         onClose={handleCloseRaiseAlert}
       />
 
-     
+      {/* Pre-approve Modal - ADD THIS */}
+      <PreApproveModal 
+        visible={showPreApprove} 
+        onClose={handleClosePreApprove}
+        onSelectOption={handlePreApproveOptionSelect}
+        />
+
+       {/* Daily Help Modal */}
+<DailyHelpScreen 
+  visible={showDailyHelp} 
+  onClose={handleCloseDailyHelp}
+/>
+  {/* Deliveries Modal */}
+<DeliveriesScreen 
+  visible={showDeliveries} 
+  onClose={handleCloseDeliveries}
+/>
+
+    {/* Visitors Modal */}
+<VisitorsScreen 
+  visible={showVisitors} 
+  onClose={handleCloseVisitors}
+/>
+
+    {/* Invite Guest Modal */}
+<InviteGuestModal 
+  visible={showInviteGuest} 
+  onClose={handleCloseInviteGuest}
+  onSelectOption={handleSelectInviteOption}
+/>
+
+    {/* Allow Kid Exit Modal */}
+<AllowKidExitModal 
+  visible={showAllowKidExit} 
+  onClose={handleCloseAllowKidExit}
+/>
+
+    {/* Allow Delivery Modal */}
+<AllowDeliveryModal 
+  visible={showAllowDelivery} 
+  onClose={handleCloseAllowDelivery}
+/>
+
+    {/* Cab/Auto Modal */}
+<CabAutoModal 
+  visible={showCabAuto} 
+  onClose={handleCloseCabAuto}
+/>
+
+    {/* Call Security Modal */}
+<CallSecurityModal 
+  visible={showCallSecurity} 
+  onClose={handleCloseCallSecurity}
+/>
+
+    {/* Message Guard Modal */}
+<MessageGuardModal 
+  visible={showMessageGuard} 
+  onClose={handleCloseMessageGuard}
+/>
+
+    {/* My Passes Modal */}
+<MyPassesModal 
+  visible={showMyPasses} 
+  onClose={handleCloseMyPasses}
+/>
+
+    {/* Visiting Help Modal */}
+<VisitingHelpModal 
+  visible={showVisitingHelp} 
+  onClose={handleCloseVisitingHelp}
+/>
+
+    {/* Classes Modal */}
+<ClassesModal 
+  visible={showClasses} 
+  onClose={handleCloseClasses}
+/>
+
+    {/* Communications Modal */}
+<CommunicationsModal 
+  visible={showCommunications} 
+  onClose={handleCloseCommunications}
+/>
+
+    {/* Find Daily Help Modal */}
+<FindDailyHelpModal 
+  visible={showFindDailyHelp} 
+  onClose={handleCloseFindDailyHelp}
+/>
+
+    {/* Search Vehicle Modal */}
+<SearchVehicleModal 
+  visible={showSearchVehicle} 
+  onClose={handleCloseSearchVehicle}
+/>
+
+    {/* Create Post Modal */}
+<CreatePostModal 
+  visible={showCreatePost} 
+  onClose={handleCloseCreatePost}
+/>
+
+    {/* Create Poll Modal */}
+<CreatePollModal 
+  visible={showCreatePoll} 
+  onClose={handleCloseCreatePoll}
+/>
+
+    {/* Host Event Modal */}
+<HostEventModal 
+  visible={showHostEvent} 
+  onClose={handleCloseHostEvent}
+/>
+
+    {/* My Posts Modal */}
+<MyPostsModal 
+  visible={showMyPosts} 
+  onClose={handleCloseMyPosts}
+/>
     </SafeAreaView>
   );
 }
