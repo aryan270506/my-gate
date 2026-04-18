@@ -11,7 +11,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { PreApproveModal, DailyHelpScreen, DeliveriesScreen, VisitorsScreen } from './Social Features/Social-features';
+import { PreApproveModal, SecurityModal, DailyHelpScreen, DeliveriesScreen, VisitorsScreen, QuickActionGrid, homeActions, moreActions, specialItemStyles, InstaHelpModal } from './Social Features/Social-features';
+import GuestModal from './Guest/GuestModal';
+import InvestSmart from './InvestSmart/InvestSmart';
 import { InviteGuestModal } from './View More Files/Visitors & Security/Invite-guest';
 import { AllowKidExitModal } from './View More Files/Visitors & Security/Allow-Kid-Exit';
 import { AllowDeliveryModal } from './View More Files/Visitors & Security/Allow-Delivery';
@@ -20,15 +22,11 @@ import { CallSecurityModal } from './View More Files/Visitors & Security/Call-Se
 import { MessageGuardModal } from './View More Files/Visitors & Security/Message-Guard';
 import { MyPassesModal } from './View More Files/Visitors & Security/My-Passes';
 import { VisitingHelpModal } from './View More Files/Visitors & Security/Visiting-help';
+import { RaiseAlertModal as VisitorsRaiseAlertModal } from './View More Files/Visitors & Security/Raise-Alert';
 import { ClassesModal, CommunicationsModal, FindDailyHelpModal, SearchVehicleModal } from './View More Files/Community';
 import { CreatePostModal, CreatePollModal, HostEventModal, MyPostsModal } from './View More Files/Feed';
-
-const homeActions = [
-  { label: 'Visitors', icon: 'people-outline' },
-  { label: 'Pre-approve', icon: 'shield-outline' },
-  { label: 'Deliveries', icon: 'cube-outline' },
-  { label: 'Daily Help', icon: 'briefcase-outline' },
-];
+import ProfileScreen from '../../Profile/Profile';
+import { logFeatureInteraction } from '../../../services/axios';
 
 const todayEntries = [
   {
@@ -47,11 +45,55 @@ const todayEntries = [
   },
 ];
 
+const customizeQuickActionCatalog = [
+  { key: 'preapprove', label: 'Pre-Appr...', displayLabel: 'Pre-Approve', icon: 'person-add-outline' },
+  { key: 'security', label: 'Security', displayLabel: 'Security', icon: 'shield-outline' },
+  { key: 'askSociety', label: 'Ask Society', displayLabel: 'Ask Society', icon: 'help-circle-outline' },
+  { key: 'posts', label: 'Posts', displayLabel: 'Posts', icon: 'document-text-outline' },
+  { key: 'invest', label: 'Invest S...', displayLabel: 'Invest Smartly', icon: 'home-outline' },
+  { key: 'findDaily', label: 'Find Daily...', displayLabel: 'Find Daily Help', icon: 'briefcase-outline' },
+  { key: 'instaHelp', label: 'InstaHelp', displayLabel: 'InstaHelp', icon: 'flash-outline' },
+  { key: 'viewMore', label: 'View More', displayLabel: 'View More', icon: 'add-circle-outline' },
+  { key: 'raiseAlert', label: 'Raise Alert', displayLabel: 'Raise Alert', icon: 'radio-outline' },
+  { key: 'communications', label: 'Communications', displayLabel: 'Communications', icon: 'chatbubble-outline' },
+  { key: 'createListing', label: 'Create a listing', displayLabel: 'Create a listing', icon: 'pricetag-outline' },
+  { key: 'homePlanner', label: 'Home Planner', displayLabel: 'Home Planner', icon: 'calendar-outline' },
+  { key: 'helpdesk', label: 'Helpdesk', displayLabel: 'Helpdesk', icon: 'construct-outline' },
+  { key: 'directory', label: 'Directory', displayLabel: 'Directory', icon: 'book-outline' },
+  { key: 'payments', label: 'Payments', displayLabel: 'Payments', icon: 'wallet-outline' },
+  { key: 'myPasses', label: 'MyPasses', displayLabel: 'MyPasses', icon: 'id-card-outline' },
+  { key: 'classes', label: 'Classes', displayLabel: 'Classes', icon: 'document-text-outline' },
+  { key: 'searchVehicle', label: 'Search Vehicle', displayLabel: 'Search Vehicle', icon: 'car-outline' },
+  { key: 'inviteGuest', label: 'Invite Guest', displayLabel: 'Invite Guest', icon: 'person-outline' },
+  { key: 'cabAuto', label: 'Cab/Auto', displayLabel: 'Cab/Auto', icon: 'car-sport-outline' },
+  { key: 'allowDelivery', label: 'Allow Delivery', displayLabel: 'Allow Delivery', icon: 'bicycle-outline' },
+  { key: 'visitingHelp', label: 'Visiting Help', displayLabel: 'Visiting Help', icon: 'construct-outline' },
+  { key: 'callSecurity', label: 'Call Security', displayLabel: 'Call Security', icon: 'call-outline' },
+  { key: 'messageGuard', label: 'Message Guard', displayLabel: 'Message Guard', icon: 'mail-outline' },
+  { key: 'allowKidExit', label: 'Allow Kid Exit', displayLabel: 'Allow Kid Exit', icon: 'happy-outline' },
+  { key: 'residents', label: 'Residents', displayLabel: 'Residents', icon: 'id-card-outline' },
+  { key: 'localDirectory', label: 'Local Directory', displayLabel: 'Local Directory', icon: 'location-outline' },
+  { key: 'createPost', label: 'Create Post', displayLabel: 'Create Post', icon: 'newspaper-outline' },
+  { key: 'createPoll', label: 'Create poll', displayLabel: 'Create poll', icon: 'bar-chart-outline' },
+  { key: 'myPosts', label: 'My Posts', displayLabel: 'My Posts', icon: 'chatbubbles-outline' },
+  { key: 'hostEvent', label: 'Host an Event', displayLabel: 'Host an Event', icon: 'calendar-clear-outline' },
+  { key: 'manageDevices', label: 'Manage Devices', displayLabel: 'Manage Devices', icon: 'phone-portrait-outline' },
+  { key: 'mygateLocks', label: 'Mygate Locks', displayLabel: 'Mygate Locks', icon: 'lock-closed-outline' },
+  { key: 'findHomes', label: 'Find Homes', displayLabel: 'Find Homes', icon: 'home-outline' },
+  { key: 'myListings', label: 'My Listings', displayLabel: 'My Listings', icon: 'file-tray-full-outline' },
+  { key: 'findFurniture', label: 'Find Furniture', displayLabel: 'Find Furniture', icon: 'bed-outline' },
+  { key: 'myFamily', label: 'My Family', displayLabel: 'My Family', icon: 'people-outline' },
+  { key: 'myVehicles', label: 'My Vehicles', displayLabel: 'My Vehicles', icon: 'car-outline' },
+  { key: 'testNotification', label: 'Test Notification', displayLabel: 'Test Notification', icon: 'notifications-outline' },
+  { key: 'myFlat', label: 'My Flat', displayLabel: 'My Flat', icon: 'home-outline' },
+  { key: 'myPlans', label: 'My Plans', displayLabel: 'My Plans', icon: 'ribbon-outline' },
+  { key: 'helpSupport', label: 'Help & Support', displayLabel: 'Help & Support', icon: 'help-circle-outline' },
+  { key: 'myDailyHelp', label: 'My Daily Help', displayLabel: 'My Daily Help', icon: 'bug-outline' },
+];
+
 const quickActionSections = [
   {
     title: 'Visitors & Security',
-    actionText: 'Raise Alert',
-    actionIcon: 'alert-circle-outline',
     items: [
       { label: 'Invite\nGuest', icon: 'person-outline' },
       { label: 'Cab/Auto', icon: 'car-sport-outline' },
@@ -59,8 +101,8 @@ const quickActionSections = [
       { label: 'Visiting\nHelp', icon: 'construct-outline' },
       { label: 'Call\nSecurity', icon: 'call-outline' },
       { label: 'Message\nGuard', icon: 'mail-outline' },
-      { label: 'MyPasses', icon: 'card-outline' },
-      { label: 'Allow Kid\nExit', icon: 'happy-outline' },
+      { label: 'MyPasses', icon: 'id-card-outline' },
+      { label: 'Allow Kid Exit', icon: 'happy-outline' },
     ],
   },
   {
@@ -122,30 +164,46 @@ const quickActionSections = [
 ];
 
 function SectionAction({ title, actionText, actionIcon, onRaiseAlert }) {
+  const isVisitorsSecurity = title === 'Visitors & Security';
+
+  if (isVisitorsSecurity) {
+    return (
+      <View style={styles.quickSectionHeader}>
+        <Text style={styles.quickSectionTitle}>{title}</Text>
+        <TouchableOpacity
+          activeOpacity={0.85}
+          style={styles.visitorRaiseAlertButton}
+          onPress={onRaiseAlert}
+        >
+          <Ionicons name="radio-outline" size={22} color="#C61F2A" />
+          <Text style={styles.visitorRaiseAlertText}>Raise Alert</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   if (!actionText) {
     return <Text style={styles.quickSectionTitle}>{title}</Text>;
   }
-
-  const isAlert = title === 'Visitors & Security';
 
   return (
     <View style={styles.quickSectionHeader}>
       <Text style={styles.quickSectionTitle}>{title}</Text>
       <TouchableOpacity
         activeOpacity={0.85}
-        style={isAlert ? styles.raiseAlertButton : styles.sectionLinkButton}
-        onPress={isAlert ? onRaiseAlert : undefined}
+        style={styles.sectionLinkButton}
+        onPress={undefined}
       >
         {actionIcon ? (
           <Ionicons
             name={actionIcon}
-            size={isAlert ? 20 : 18}
-            color={isAlert ? '#D73A32' : '#1D97E8'}
+            size={18}
+            color="#1D97E8"
             style={styles.sectionLinkIcon}
           />
         ) : null}
-        <Text style={isAlert ? styles.raiseAlertText : styles.sectionLinkText}>{actionText}</Text>
-        {!isAlert ? <Ionicons name="chevron-forward" size={20} color="#1D97E8" /> : null}
+        <Text style={styles.sectionLinkText}>{actionText}</Text>
+        <Ionicons name="chevron-forward" size={20} color="#1D97E8" />
       </TouchableOpacity>
     </View>
   );
@@ -267,10 +325,33 @@ function RaiseAlertModal({ visible, onClose }) {
   );
 }
 
+// Advertisement Component
+function AdvertisementBlock() {
+  return (
+    <View style={styles.adContainer}>
+      <View style={styles.adContent}>
+        <View style={styles.adTextSection}>
+          <Text style={styles.adMainText}>CONSTRUCT YOUR</Text>
+          <Text style={styles.adHighlight}>DREAM HOME</Text>
+          <TouchableOpacity style={styles.adCtaButton}>
+            <Text style={styles.adCtaText}>Get in Touch</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.adImageSection}>
+          <View style={styles.adImagePlaceholder} />
+        </View>
+      </View>
+      <Text style={styles.adLabel}>AD</Text>
+    </View>
+  );
+}
+
 export default function SocialScreen() {
   const [showQuickActions, setShowQuickActions] = useState(false);
   const [showRaiseAlert, setShowRaiseAlert] = useState(false);
   const [showPreApprove, setShowPreApprove] = useState(false);
+  const [showGuestModal, setShowGuestModal] = useState(false);
+  const [showSecurity, setShowSecurity] = useState(false);
   const [showDailyHelp, setShowDailyHelp] = useState(false);
   const [showDeliveries, setShowDeliveries] = useState(false);
   const [showVisitors, setShowVisitors] = useState(false);
@@ -290,12 +371,48 @@ export default function SocialScreen() {
   const [showCreatePoll, setShowCreatePoll] = useState(false);
   const [showHostEvent, setShowHostEvent] = useState(false);
   const [showMyPosts, setShowMyPosts] = useState(false);
+  const [showInstaHelp, setShowInstaHelp] = useState(false);
+  const [showInvestSmart, setShowInvestSmart] = useState(false);
+  const [showProfileScreen, setShowProfileScreen] = useState(false);
+  const [showCustomizeQuickActions, setShowCustomizeQuickActions] = useState(false);
+  const [dashboardQuickActions, setDashboardQuickActions] = useState(customizeQuickActionCatalog);
+  const [draftQuickActions, setDraftQuickActions] = useState(customizeQuickActionCatalog);
+  const [selectedQuickActionKey, setSelectedQuickActionKey] = useState(null);
+  const [returnToSecurity, setReturnToSecurity] = useState(false);
+
+  const normalizeFeatureLabel = (label) => String(label || '').replace(/\n/g, ' ').trim();
+
+  const trackFeaturePress = async (featureName, context = {}) => {
+    const normalizedName = normalizeFeatureLabel(featureName);
+
+    if (!normalizedName) {
+      return;
+    }
+
+    try {
+      await logFeatureInteraction({
+        featureName: normalizedName,
+        source: 'social-screen',
+        screen: 'Social',
+        actionType: 'press',
+        metadata: context,
+      });
+    } catch (error) {
+      console.log('Feature tracking failed:', error?.message || error);
+    }
+  };
 
   // Handle Quick Item Press
   const handleQuickItemPress = (itemLabel) => {
+    trackFeaturePress(itemLabel, { section: 'quick-actions-modal' });
+
     switch (itemLabel) {
+      case 'Pre Approv':
+        setShowPreApprove(true);
+        break;
       case 'Invite\nGuest':
-        setShowInviteGuest(true);
+        setShowQuickActions(false);
+        setShowGuestModal(true);
         break;
       case 'Cab/Auto':
         setShowCabAuto(true);
@@ -349,8 +466,16 @@ export default function SocialScreen() {
 
   // Update handleHomeActionPress function
 const handleHomeActionPress = (actionLabel) => {
-  if (actionLabel === 'Pre-approve') {
+  trackFeaturePress(actionLabel, { section: 'home-actions' });
+
+  if (actionLabel === 'Pre-Appr...') {
     setShowPreApprove(true);
+  } else if (actionLabel === 'Security') {
+    setShowSecurity(true);
+  } else if (actionLabel === 'Ask Society') {
+    setShowCreatePost(true);
+  } else if (actionLabel === 'Posts') {
+    setShowMyPosts(true);
   } else if (actionLabel === 'Daily Help') {
     setShowDailyHelp(true);
   } else if (actionLabel === 'Deliveries') {
@@ -373,13 +498,18 @@ const handleCloseVisitors = () => {
 
 
   const handleRaiseAlert = () => {
+    trackFeaturePress('Raise Alert', { section: 'visitors-security' });
     setShowQuickActions(false);
     setShowRaiseAlert(true);
   };
 
   const handleCloseRaiseAlert = () => {
     setShowRaiseAlert(false);
-    setShowQuickActions(true);
+    setShowQuickActions(false);
+    if (returnToSecurity) {
+      setReturnToSecurity(false);
+      setShowSecurity(true);
+    }
   };
 
   const handleClosePreApprove = () => {
@@ -388,10 +518,11 @@ const handleCloseVisitors = () => {
 
   const handlePreApproveOptionSelect = (option) => {
     console.log('Pre-approve option selected:', option);
+    trackFeaturePress(option, { section: 'pre-approve-modal' });
     // Navigate to the appropriate screen based on selected option
     switch (option) {
       case 'Guest':
-        setShowInviteGuest(true);
+        setShowGuestModal(true);
         break;
       case 'Cab':
         setShowCabAuto(true);
@@ -406,6 +537,37 @@ const handleCloseVisitors = () => {
         console.log('Unknown option:', option);
     }
   };
+
+  const handleCloseSecurity = () => {
+    setShowSecurity(false);
+    setReturnToSecurity(false);
+  };
+
+  const handleSecurityOptionSelect = (option) => {
+    console.log('Security option selected:', option);
+    trackFeaturePress(option, { section: 'security-modal' });
+    setReturnToSecurity(true);
+    // Navigate to the appropriate screen based on selected option
+    switch (option) {
+      case 'Raise Alert':
+        setShowRaiseAlert(true);
+        break;
+      case 'Call Security':
+        setShowCallSecurity(true);
+        break;
+      case 'Message to Guard':
+        setShowMessageGuard(true);
+        break;
+      case 'Search a Vehicle':
+        setShowSearchVehicle(true);
+        break;
+      case 'Allow Kid Exit':
+        setShowAllowKidExit(true);
+        break;
+      default:
+        console.log('Unknown security option:', option);
+    }
+  };
    
   const handleCloseDailyHelp = () => {
   setShowDailyHelp(false);
@@ -417,6 +579,7 @@ const handleCloseInviteGuest = () => {
 
 const handleSelectInviteOption = (option) => {
   console.log('Selected invite option:', option.title);
+  trackFeaturePress(option?.title || 'Invite Option', { section: 'invite-guest-modal' });
   // Add logic here to handle different invite options
   // For now, just logging the selected option
 };
@@ -425,20 +588,156 @@ const handleSelectInviteOption = (option) => {
 const handleCloseAllowKidExit = () => setShowAllowKidExit(false);
 const handleCloseAllowDelivery = () => setShowAllowDelivery(false);
 const handleCloseCabAuto = () => setShowCabAuto(false);
-const handleCloseCallSecurity = () => setShowCallSecurity(false);
-const handleCloseMessageGuard = () => setShowMessageGuard(false);
+const handleCloseCallSecurity = () => {
+  setShowCallSecurity(false);
+  if (returnToSecurity) {
+    setReturnToSecurity(false);
+    setShowSecurity(true);
+  }
+};
+const handleCloseMessageGuard = () => {
+  setShowMessageGuard(false);
+  if (returnToSecurity) {
+    setReturnToSecurity(false);
+    setShowSecurity(true);
+  }
+};
 const handleCloseMyPasses = () => setShowMyPasses(false);
 const handleCloseVisitingHelp = () => setShowVisitingHelp(false);
 const handleCloseClasses = () => setShowClasses(false);
 const handleCloseCommunications = () => setShowCommunications(false);
 const handleCloseFindDailyHelp = () => setShowFindDailyHelp(false);
-const handleCloseSearchVehicle = () => setShowSearchVehicle(false);
+const handleCloseSearchVehicle = () => {
+  setShowSearchVehicle(false);
+  if (returnToSecurity) {
+    setReturnToSecurity(false);
+    setShowSecurity(true);
+  }
+};
+
+const handleCloseAllowKidExitFromSecurity = () => {
+  setShowAllowKidExit(false);
+  if (returnToSecurity) {
+    setReturnToSecurity(false);
+    setShowSecurity(true);
+  }
+};
 
 // Close handlers for Feed modals
 const handleCloseCreatePost = () => setShowCreatePost(false);
 const handleCloseCreatePoll = () => setShowCreatePoll(false);
 const handleCloseHostEvent = () => setShowHostEvent(false);
 const handleCloseMyPosts = () => setShowMyPosts(false);
+
+const handleDashboardActionPress = (actionLabel) => {
+  trackFeaturePress(actionLabel, { section: 'dashboard-quick-actions' });
+
+  if (actionLabel === 'Pre-Appr...') {
+    setShowPreApprove(true);
+  } else if (actionLabel === 'Security') {
+    setShowSecurity(true);
+  } else if (actionLabel === 'Ask Society') {
+    setShowCreatePost(true);
+  } else if (actionLabel === 'Posts') {
+    setShowMyPosts(true);
+  } else if (actionLabel === 'Find Daily...') {
+    setShowFindDailyHelp(true);
+  } else if (actionLabel === 'Raise Alert') {
+    setShowRaiseAlert(true);
+  } else if (actionLabel === 'Communications') {
+    setShowCommunications(true);
+  } else if (actionLabel === 'Invite Guest') {
+    setShowGuestModal(true);
+  } else if (actionLabel === 'Search Vehicle') {
+    setShowSearchVehicle(true);
+  } else if (actionLabel === 'Allow Delivery') {
+    setShowAllowDelivery(true);
+  } else if (actionLabel === 'Visiting Help') {
+    setShowVisitingHelp(true);
+  } else if (actionLabel === 'Call Security') {
+    setShowCallSecurity(true);
+  } else if (actionLabel === 'Message Guard') {
+    setShowMessageGuard(true);
+  } else if (actionLabel === 'Allow Kid Exit') {
+    setShowAllowKidExit(true);
+  } else if (actionLabel === 'Classes') {
+    setShowClasses(true);
+  } else if (actionLabel === 'Create Post') {
+    setShowCreatePost(true);
+  } else if (actionLabel === 'Create poll') {
+    setShowCreatePoll(true);
+  } else if (actionLabel === 'My Posts') {
+    setShowMyPosts(true);
+  } else if (actionLabel === 'Host an Event') {
+    setShowHostEvent(true);
+  } else if (actionLabel === 'My Daily Help') {
+    setShowFindDailyHelp(true);
+  } else if (actionLabel === 'Invest S...') {
+    setShowInvestSmart(true);
+  } else if (actionLabel === 'InstaHelp') {
+    setShowInstaHelp(true);
+  } else if (actionLabel === 'View More') {
+    setShowQuickActions(true);
+  } else if (actionLabel === 'Daily Help') {
+    setShowDailyHelp(true);
+  } else if (actionLabel === 'Deliveries') {
+    setShowDeliveries(true);
+  } else if (actionLabel === 'Visitors') {
+    setShowVisitors(true);
+  } else {
+    console.log('Pressed:', actionLabel);
+  }
+};
+
+const openCustomizeQuickActions = () => {
+  setDraftQuickActions([...dashboardQuickActions]);
+  setSelectedQuickActionKey(null);
+  setShowCustomizeQuickActions(true);
+};
+
+const handleCloseCustomizeQuickActions = () => {
+  setShowCustomizeQuickActions(false);
+  setSelectedQuickActionKey(null);
+};
+
+const handleResetCustomizeQuickActions = () => {
+  setDraftQuickActions([...customizeQuickActionCatalog]);
+  setSelectedQuickActionKey(null);
+};
+
+const handleSaveCustomizeQuickActions = () => {
+  setDashboardQuickActions([...draftQuickActions]);
+  setShowCustomizeQuickActions(false);
+  setSelectedQuickActionKey(null);
+};
+
+const handleQuickActionTilePress = (targetKey) => {
+  if (!selectedQuickActionKey) {
+    setSelectedQuickActionKey(targetKey);
+    return;
+  }
+
+  if (selectedQuickActionKey === targetKey) {
+    setSelectedQuickActionKey(null);
+    return;
+  }
+
+  const sourceIndex = draftQuickActions.findIndex((item) => item.key === selectedQuickActionKey);
+  const targetIndex = draftQuickActions.findIndex((item) => item.key === targetKey);
+
+  if (sourceIndex === -1 || targetIndex === -1) {
+    setSelectedQuickActionKey(null);
+    return;
+  }
+
+  const nextDraft = [...draftQuickActions];
+  [nextDraft[sourceIndex], nextDraft[targetIndex]] = [nextDraft[targetIndex], nextDraft[sourceIndex]];
+  setDraftQuickActions(nextDraft);
+  setSelectedQuickActionKey(null);
+};
+
+const dashboardTopActions = dashboardQuickActions.slice(0, 4);
+const dashboardBottomActions = dashboardQuickActions.slice(4, 8);
 
 
   return (
@@ -447,19 +746,29 @@ const handleCloseMyPosts = () => setShowMyPosts(false);
 
       <View style={styles.screen}>
         <View style={styles.headerBar}>
-          <TouchableOpacity activeOpacity={0.8} style={styles.headerIconButton}>
-            <Ionicons name="menu-outline" size={20} color="#726B60" />
-          </TouchableOpacity>
-
-          <Text style={styles.headerTitle}>G9 802</Text>
+          <View style={styles.headerLeft}>
+            <Text style={styles.headerTitle}>G9 802</Text>
+            <View style={styles.adSupportedBadge}>
+              <Text style={styles.adSupportedText}>Ad-Supported</Text>
+            </View>
+          </View>
 
           <View style={styles.headerActions}>
             <TouchableOpacity activeOpacity={0.8} style={styles.headerIconButton}>
-              <Ionicons name="search-outline" size={18} color="#7B7469" />
+              <Ionicons name="search-outline" size={24} color="#7B7469" />
             </TouchableOpacity>
             <TouchableOpacity activeOpacity={0.8} style={styles.notificationButton}>
-              <Ionicons name="notifications-outline" size={18} color="#7B7469" />
+              <Ionicons name="chatbubble-outline" size={24} color="#7B7469" />
               <View style={styles.notificationDot} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={styles.profileButton}
+              onPress={() => setShowProfileScreen(true)}
+            >
+              <View style={styles.profileCircle}>
+                <Text style={styles.profileInitials}>SC</Text>
+              </View>
             </TouchableOpacity>
           </View>
         </View>
@@ -468,56 +777,49 @@ const handleCloseMyPosts = () => setShowMyPosts(false);
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.welcomeCard}>
-            <View style={styles.welcomeCopy}>
-              <View style={styles.statusRow}>
-                <View style={styles.statusDot} />
-                <Text style={styles.statusText}>STATUS: SECURE</Text>
-              </View>
-              <Text style={styles.welcomeText}>
-                Welcome back <Text style={styles.wave}>👋</Text>
-              </Text>
-            </View>
-            <Ionicons name="shield-outline" size={68} color="#EEEAE2" />
-          </View>
+          {/* Advertisement Banner at Top */}
+          <AdvertisementBlock />
 
-          <View style={styles.actionsGrid}>
-            {homeActions.map((action) => (
-              <TouchableOpacity 
-                key={action.label} 
-                style={styles.actionCard} 
-                activeOpacity={0.85}
-                onPress={() => handleHomeActionPress(action.label)}
-              >
-                <View style={styles.actionIconCircle}>
-                  <Ionicons name={action.icon} size={18} color="#7D755F" />
-                </View>
-                <Text style={styles.actionLabel}>{action.label}</Text>
+          {/* Quick Actions Section */}
+          <View style={styles.quickActionsSection}>
+            <View style={styles.quickActionsHeader}>
+              <Text style={styles.quickActionsTitle}>Quick Actions</Text>
+              <TouchableOpacity activeOpacity={0.8} onPress={openCustomizeQuickActions}>
+                <Text style={styles.customizeText}>Customise</Text>
               </TouchableOpacity>
-            ))}
-          </View>
-
-          <TouchableOpacity
-            style={styles.viewMoreButton}
-            activeOpacity={0.9}
-            onPress={() => setShowQuickActions(true)}
-          >
-            <Ionicons name="add-outline" size={18} color="#1E1E1E" />
-            <Text style={styles.viewMoreText}>View More</Text>
-          </TouchableOpacity>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>COMMUNITY UPDATES</Text>
-            <View style={styles.updatesCard}>
-              <View style={styles.emptyIconWrap}>
-                <Ionicons name="copy-outline" size={22} color="#E1DBCF" />
-              </View>
-              <Text style={styles.emptyText}>You have no new updates</Text>
             </View>
+            <QuickActionGrid 
+              items={dashboardTopActions}
+              specialItems={specialItemStyles}
+              onItemPress={handleDashboardActionPress}
+            />
           </View>
 
+          {/* More Quick Actions */}
+          <View style={styles.moreQuickActionsSection}>
+            <QuickActionGrid 
+              items={dashboardBottomActions}
+              specialItems={specialItemStyles}
+              onItemPress={handleDashboardActionPress}
+            />
+          </View>
+
+          {/* Advertisement 1 */}
+          <AdvertisementBlock />
+
+          {/* Updates Section */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>TODAY'S ENTRY</Text>
+            <Text style={styles.noUpdatesTitle}>You have no new updates</Text>
+          </View>
+
+          {/* Today's Entry Updates */}
+          <View style={styles.section}>
+            <View style={styles.todayHeaderRow}>
+              <Text style={styles.sectionTitle}>TODAY'S ENTRY UPDATES</Text>
+              <TouchableOpacity>
+                <Text style={styles.viewAllLink}>View All</Text>
+              </TouchableOpacity>
+            </View>
             <View style={styles.entriesRow}>
               {todayEntries.map((entry) => (
                 <View key={entry.name} style={styles.entryCard}>
@@ -549,8 +851,117 @@ const handleCloseMyPosts = () => setShowMyPosts(false);
               ))}
             </View>
           </View>
+
+          {/* Advertisement 2 */}
+          <AdvertisementBlock />
+
+          {/* Community Posts Section */}
+          <View style={styles.section}>
+            <View style={styles.communityHeaderRow}>
+              <Text style={styles.communityTitle}>Community Posts</Text>
+              <TouchableOpacity style={styles.newPostButton} activeOpacity={0.85}>
+                <Ionicons name="create-outline" size={16} color="#1D97E8" />
+                <Text style={styles.newPostText}>New Post</Text>
+              </TouchableOpacity>
+            </View>
+            {/* Posts will be displayed here */}
+          </View>
         </ScrollView>
       </View>
+
+      {/* Quick Actions Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showCustomizeQuickActions}
+        onRequestClose={handleCloseCustomizeQuickActions}
+      >
+        <View style={styles.customizeOverlay}>
+          <View style={styles.customizeSheet}>
+            <View style={styles.customizeDragHandle} />
+
+            <TouchableOpacity
+              style={styles.customizeCloseButton}
+              onPress={handleCloseCustomizeQuickActions}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="close" size={34} color="#1A1A1A" />
+            </TouchableOpacity>
+
+            <Text style={styles.customizeTitle}>Customise Quick Actions</Text>
+            <Text style={styles.customizeSubtitle}>Press and hold to rearrange the actions</Text>
+
+            <ScrollView
+              style={styles.customizeScroll}
+              contentContainerStyle={styles.customizeScrollContent}
+              showsVerticalScrollIndicator={false}
+            >
+              <View style={styles.customizeGrid}>
+                {draftQuickActions.map((item, index) => {
+                  const isSelected = selectedQuickActionKey === item.key;
+                  const special = specialItemStyles[item.label];
+                  return (
+                    <TouchableOpacity
+                      key={item.key}
+                      style={styles.customizeItem}
+                      activeOpacity={0.9}
+                      onLongPress={() => setSelectedQuickActionKey(item.key)}
+                      onPress={() => handleQuickActionTilePress(item.key)}
+                      delayLongPress={180}
+                    >
+                      <View
+                        style={[
+                          styles.customizeIconBox,
+                          special ? { backgroundColor: special.backgroundColor } : null,
+                          isSelected && styles.customizeIconBoxSelected,
+                        ]}
+                      >
+                        <Ionicons
+                          name={item.icon}
+                          size={30}
+                          color={special ? (special.textColor || '#20353A') : '#20353A'}
+                        />
+                        {index < 8 ? (
+                          <View style={styles.customizePinBadge}>
+                            <Ionicons name="star" size={12} color="#FFFFFF" />
+                          </View>
+                        ) : null}
+                      </View>
+                      <Text style={styles.customizeItemLabel}>{item.displayLabel || item.label.replace('...', '')}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </ScrollView>
+
+            <View style={styles.customizeFooter}>
+              <TouchableOpacity
+                style={styles.customizeResetButton}
+                onPress={handleResetCustomizeQuickActions}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.customizeResetText}>Reset</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.customizeSaveButton}
+                onPress={handleSaveCustomizeQuickActions}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.customizeSaveText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Quick Actions Modal */}
+      <Modal
+        animationType="slide"
+        visible={showProfileScreen}
+        onRequestClose={() => setShowProfileScreen(false)}
+      >
+        <ProfileScreen onClose={() => setShowProfileScreen(false)} />
+      </Modal>
 
       {/* Quick Actions Modal */}
       <Modal
@@ -601,7 +1012,7 @@ const handleCloseMyPosts = () => setShowMyPosts(false);
       </Modal>
 
       {/* Raise Alert Modal */}
-      <RaiseAlertModal 
+      <VisitorsRaiseAlertModal 
         visible={showRaiseAlert} 
         onClose={handleCloseRaiseAlert}
       />
@@ -613,11 +1024,37 @@ const handleCloseMyPosts = () => setShowMyPosts(false);
         onSelectOption={handlePreApproveOptionSelect}
         />
 
+      {/* Guest Modal */}
+      <GuestModal 
+        visible={showGuestModal}
+        onClose={() => setShowGuestModal(false)}
+      />
+
+      {/* Security Modal */}
+      <SecurityModal 
+        visible={showSecurity} 
+        onClose={handleCloseSecurity}
+        onSelectOption={handleSecurityOptionSelect}
+        />
+
        {/* Daily Help Modal */}
 <DailyHelpScreen 
   visible={showDailyHelp} 
   onClose={handleCloseDailyHelp}
 />
+
+  {/* InstaHelp Modal */}
+<InstaHelpModal 
+  visible={showInstaHelp} 
+  onClose={() => setShowInstaHelp(false)}
+/>
+
+  {/* Invest Smartly Modal */}
+<InvestSmart 
+  visible={showInvestSmart} 
+  onClose={() => setShowInvestSmart(false)}
+/>
+
   {/* Deliveries Modal */}
 <DeliveriesScreen 
   visible={showDeliveries} 
@@ -640,7 +1077,7 @@ const handleCloseMyPosts = () => setShowMyPosts(false);
     {/* Allow Kid Exit Modal */}
 <AllowKidExitModal 
   visible={showAllowKidExit} 
-  onClose={handleCloseAllowKidExit}
+  onClose={handleCloseAllowKidExitFromSecurity}
 />
 
     {/* Allow Delivery Modal */}
@@ -733,18 +1170,24 @@ const handleCloseMyPosts = () => setShowMyPosts(false);
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F7F3EA',
+    backgroundColor: '#FFFFFF',
   },
   screen: {
     flex: 1,
-    backgroundColor: '#F7F3EA',
+    backgroundColor: '#FFFFFF',
   },
   headerBar: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 18,
     paddingTop: 10,
     paddingBottom: 6,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   headerIconButton: {
     width: 28,
@@ -752,12 +1195,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    flex: 1,
-    marginLeft: 8,
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: '700',
-    color: '#4F4A40',
-    letterSpacing: 0.2,
+    color: '#0d3d2f',
+  },
+  adSupportedBadge: {
+    backgroundColor: '#F0F0F0',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  adSupportedText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#666666',
   },
   headerActions: {
     flexDirection: 'row',
@@ -778,10 +1229,168 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     backgroundColor: '#F35345',
   },
+  profileButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 12,
+  },
+  profileCircle: {
+    width: 35,
+    height: 35,
+    borderRadius: 20,
+    backgroundColor: '#4CAF50',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileInitials: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
   scrollContent: {
     paddingHorizontal: 16,
     paddingTop: 8,
-    paddingBottom: 18,
+    paddingBottom: 80,
+  },
+  quickActionsSection: {
+    marginBottom: 16,
+  },
+  quickActionsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  quickActionsTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
+  customizeText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#0d7d5f',
+  },
+  quickActionGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  quickActionItem: {
+    width: '23.5%',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  quickActionIconBox: {
+    width: 70,
+    height: 70,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+    borderWidth: 0.5,
+    borderColor: '#EEEEEE',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  quickActionLabel: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#333333',
+    textAlign: 'center',
+    lineHeight: 14,
+  },
+  investImageContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  investLabel: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#0066CC',
+  },
+  investSubLabel: {
+    fontSize: 10,
+    fontWeight: '500',
+    color: '#0066CC',
+    marginTop: 2,
+  },
+  moreQuickActionsSection: {
+    marginBottom: 16,
+  },
+  adContainer: {
+    marginBottom: 16,
+    position: 'relative',
+  },
+  adLabel: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#999',
+    letterSpacing: 1,
+  },
+  adContent: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 2,
+  },
+  adTextSection: {
+    flex: 1,
+  },
+  adMainText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#888888',
+    letterSpacing: 1.2,
+    marginBottom: 2,
+  },
+  adHighlight: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#E8743B',
+    marginBottom: 10,
+  },
+  adCtaButton: {
+    backgroundColor: '#FFD700',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+  },
+  adCtaText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#333333',
+  },
+  adImageSection: {
+    width: '35%',
+    height: 80,
+    marginLeft: 8,
+  },
+  adImagePlaceholder: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#F5F5F5',
+    borderRadius: 8,
   },
   welcomeCard: {
     flexDirection: 'row',
@@ -884,12 +1493,57 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 18,
   },
+  noUpdatesTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333333',
+    textAlign: 'center',
+    paddingVertical: 28,
+  },
   sectionTitle: {
     marginBottom: 10,
     fontSize: 13,
     fontWeight: '800',
     letterSpacing: 1.2,
-    color: '#C0B6AA',
+    color: '#999999',
+  },
+  todayHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  communityHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  communityTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
+  newPostButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#EEEEEE',
+    gap: 4,
+  },
+  newPostText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0d7d5f',
+  },
+  viewAllLink: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#0d7d5f',
   },
   updatesCard: {
     backgroundColor: '#FBFAF7',
@@ -917,22 +1571,22 @@ const styles = StyleSheet.create({
   },
   entryCard: {
     width: '47%',
-    backgroundColor: '#FBFAF7',
+    backgroundColor: '#FFFFFF',
     borderRadius: 22,
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 18,
-    shadowColor: '#C9BEAE',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.14,
+    shadowOpacity: 0.1,
     shadowRadius: 16,
-    elevation: 4,
+    elevation: 2,
   },
   entryAvatar: {
     width: 54,
     height: 54,
     borderRadius: 27,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F0F0F0',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
@@ -940,14 +1594,14 @@ const styles = StyleSheet.create({
   entryName: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#3B352D',
+    color: '#1a1a1a',
     textAlign: 'center',
   },
   entryTime: {
     marginTop: 2,
     fontSize: 11,
     fontWeight: '700',
-    color: '#B1A79B',
+    color: '#999999',
     textAlign: 'center',
   },
   entryBadge: {
@@ -957,10 +1611,10 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   deliveryBadge: {
-    backgroundColor: '#F7F1C9',
+    backgroundColor: '#FFF3E0',
   },
   helpBadge: {
-    backgroundColor: '#F7E8C4',
+    backgroundColor: '#F5F5F5',
   },
   entryBadgeText: {
     fontSize: 10,
@@ -968,10 +1622,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   deliveryBadgeText: {
-    color: '#9B8430',
+    color: '#FF9800',
   },
   helpBadgeText: {
-    color: '#A4722C',
+    color: '#666666',
   },
   modalSafeArea: {
     flex: 1,
@@ -997,7 +1651,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#0B0B0B',
+    color: '#1a1a1a',
   },
   headerSpacer: {
     width: 44,
@@ -1005,9 +1659,9 @@ const styles = StyleSheet.create({
   searchBox: {
     height: 64,
     borderRadius: 26,
-    backgroundColor: '#F4F6F8',
+    backgroundColor: '#F8F8F8',
     borderWidth: 1,
-    borderColor: '#D9E0E4',
+    borderColor: '#EEEEEE',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 18,
@@ -1016,7 +1670,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 18,
-    color: '#223236',
+    color: '#333333',
     marginLeft: 12,
   },
   quickSection: {
@@ -1028,10 +1682,26 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 18,
   },
+  visitorRaiseAlertButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#D7D7D7',
+    borderRadius: 999,
+    paddingHorizontal: 5,
+    paddingVertical: 10,
+    backgroundColor: '#FFFFFF',
+  },
+  visitorRaiseAlertText: {
+    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#C61F2A',
+  },
   quickSectionTitle: {
     fontSize: 26,
     fontWeight: '800',
-    color: '#18272C',
+    color: '#1a1a1a',
   },
   raiseAlertButton: {
     flexDirection: 'row',
@@ -1045,7 +1715,7 @@ const styles = StyleSheet.create({
   raiseAlertText: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#D73A32',
+    color: '#FF4444',
   },
   sectionLinkButton: {
     flexDirection: 'row',
@@ -1057,7 +1727,7 @@ const styles = StyleSheet.create({
   sectionLinkText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1D97E8',
+    color: '#0d7d5f',
     marginRight: 2,
   },
   quickGrid: {
@@ -1075,7 +1745,7 @@ const styles = StyleSheet.create({
     height: 88,
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#E2E6EA',
+    borderColor: '#EEEEEE',
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
@@ -1085,7 +1755,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     fontWeight: '500',
-    color: '#1C2B2F',
+    color: '#333333',
     textAlign: 'center',
   },
   // Raise Alert Modal Styles
@@ -1106,7 +1776,7 @@ const styles = StyleSheet.create({
   alertDragHandle: {
     width: 40,
     height: 4,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#EEEEEE',
     borderRadius: 2,
     alignSelf: 'center',
     marginBottom: 16,
@@ -1131,7 +1801,7 @@ const styles = StyleSheet.create({
   alertTitle: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#1A1A1A',
+    color: '#1a1a1a',
   },
   adBadge: {
     backgroundColor: '#F5F5F5',
@@ -1141,7 +1811,7 @@ const styles = StyleSheet.create({
   },
   adBadgeText: {
     fontSize: 12,
-    color: '#999',
+    color: '#999999',
     fontWeight: '500',
   },
   alertSubtitle: {
@@ -1158,7 +1828,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#FFE5B4',
+    backgroundColor: '#FFE5CC',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1182,7 +1852,7 @@ const styles = StyleSheet.create({
   alertOptionText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: '#333333',
     textAlign: 'center',
   },
   otherIssueButton: {
@@ -1198,7 +1868,7 @@ const styles = StyleSheet.create({
   otherIssueText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: '#333333',
   },
   notifySection: {
     flexDirection: 'row',
@@ -1210,7 +1880,7 @@ const styles = StyleSheet.create({
   notifyLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: '#333333',
   },
   addButton: {
     flexDirection: 'row',
@@ -1218,18 +1888,18 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     fontSize: 16,
-    color: '#1D97E8',
+    color: '#0d7d5f',
     marginLeft: 4,
     fontWeight: '600',
   },
   societySecurityText: {
     fontSize: 14,
-    color: '#999',
+    color: '#999999',
     fontWeight: '500',
     marginBottom: 24,
   },
   raiseAlarmButton: {
-    backgroundColor: 'rgb(247, 80, 80)',
+    backgroundColor: '#FFD700',
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
@@ -1238,7 +1908,7 @@ const styles = StyleSheet.create({
   raiseAlarmText: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#f9f5f5',
+    color: '#333333',
   },
   updatesSection: {
     marginBottom: 10,
@@ -1252,11 +1922,11 @@ const styles = StyleSheet.create({
   updatesTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#333',
+    color: '#333333',
   },
   viewAllText: {
     fontSize: 14,
-    color: '#1D97E8',
+    color: '#0d7d5f',
     fontWeight: '600',
   },
   noUpdatesContainer: {
@@ -1269,8 +1939,142 @@ const styles = StyleSheet.create({
   },
   noUpdatesText: {
     fontSize: 14,
-    color: '#999',
+    color: '#999999',
     marginTop: 8,
+  },
+  customizeOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    justifyContent: 'flex-end',
+  },
+  customizeSheet: {
+    backgroundColor: '#F1EEEA',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingHorizontal: 18,
+    paddingTop: 12,
+    paddingBottom: 20,
+    maxHeight: '92%',
+  },
+  customizeDragHandle: {
+    width: 48,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#C4C0BA',
+    alignSelf: 'center',
+    marginBottom: 8,
+  },
+  customizeCloseButton: {
+    position: 'absolute',
+    top: 10,
+    right: 14,
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  customizeTitle: {
+    marginTop: 10,
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#111111',
+    textAlign: 'center',
+  },
+  customizeSubtitle: {
+    marginTop: 12,
+    marginBottom: 16,
+    fontSize: 14,
+    color: '#4F4B45',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  customizeScroll: {
+    maxHeight: '68%',
+  },
+  customizeScrollContent: {
+    paddingBottom: 6,
+  },
+  customizeGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  customizeItem: {
+    width: '23%',
+    marginBottom: 18,
+    alignItems: 'center',
+  },
+  customizeIconBox: {
+    width: 82,
+    height: 82,
+    borderRadius: 18,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#E3DFD8',
+  },
+  customizeIconBoxSelected: {
+    borderColor: '#0d3d2f',
+    borderWidth: 2,
+  },
+  customizePinBadge: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#506873',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#F1EEEA',
+  },
+  customizeItemLabel: {
+    fontSize: 11,
+    lineHeight: 14,
+    color: '#212121',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  customizeFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 6,
+    paddingTop: 4,
+  },
+  customizeResetButton: {
+    flex: 1,
+    height: 56,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#D5D1CA',
+    backgroundColor: '#ECE9E4',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  customizeResetText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#98A0A5',
+  },
+  customizeSaveButton: {
+    flex: 1,
+    height: 56,
+    borderRadius: 16,
+    backgroundColor: '#8C9AA0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 10,
+  },
+  customizeSaveText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
   // Pre-approve Modal Styles
   preApproveOverlay: {
@@ -1289,7 +2093,7 @@ const styles = StyleSheet.create({
   preApproveDragHandle: {
     width: 40,
     height: 4,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#EEEEEE',
     borderRadius: 2,
     alignSelf: 'center',
     marginBottom: 16,
@@ -1314,7 +2118,7 @@ const styles = StyleSheet.create({
   preApproveTitle: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#1A1A1A',
+    color: '#1a1a1a',
   },
   preApproveAdBadge: {
     backgroundColor: '#F5F5F5',
@@ -1324,7 +2128,7 @@ const styles = StyleSheet.create({
   },
   preApproveAdBadgeText: {
     fontSize: 12,
-    color: '#999',
+    color: '#999999',
     fontWeight: '500',
   },
   preApproveSubtitle: {
@@ -1359,19 +2163,19 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 1,
   },
   preApproveOptionText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#2C3E50',
+    color: '#333333',
     textAlign: 'center',
   },
   preApproveFooterNote: {
     fontSize: 12,
-    color: '#999',
+    color: '#999999',
     textAlign: 'center',
     marginTop: 8,
   },

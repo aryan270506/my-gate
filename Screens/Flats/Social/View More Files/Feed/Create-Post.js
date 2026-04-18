@@ -17,17 +17,9 @@ import { Ionicons } from '@expo/vector-icons';
 
 export function CreatePostModal({ visible, onClose }) {
   const [postContent, setPostContent] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('General');
-  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [audienceType, setAudienceType] = useState('All Residents');
 
-  const categories = [
-    { label: 'General', icon: 'chatbubble-outline' },
-    { label: 'Complaint', icon: 'alert-circle-outline' },
-    { label: 'Suggestion', icon: 'bulb-outline' },
-    { label: 'Celebration', icon: 'heart-outline' },
-    { label: 'Lost & Found', icon: 'search-outline' },
-    { label: 'Emergency', icon: 'warning-outline' },
-  ];
+  const audienceOptions = ['All Residents', 'Friends', 'Building Only'];
 
   const handlePost = () => {
     if (postContent.trim() === '') {
@@ -36,13 +28,11 @@ export function CreatePostModal({ visible, onClose }) {
     }
     console.log('Post Created:', {
       content: postContent,
-      category: selectedCategory,
-      isAnonymous: isAnonymous,
+      audienceType: audienceType,
       timestamp: new Date(),
     });
     setPostContent('');
-    setSelectedCategory('General');
-    setIsAnonymous(false);
+    setAudienceType('All Residents');
     onClose();
   };
 
@@ -60,111 +50,75 @@ export function CreatePostModal({ visible, onClose }) {
         >
           {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Ionicons name="close" size={28} color="#333" />
+            <TouchableOpacity onPress={onClose} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={24} color="#333" />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Create Post</Text>
+            <Text style={styles.headerTitle}>New Post</Text>
+            <View style={styles.headerRight}>
+              <TouchableOpacity style={styles.guidelineButton}>
+                <Text style={styles.guidelineText}>Guideline</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.infoButton}>
+                <Ionicons name="information-circle" size={24} color="#0d3d2f" />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <ScrollView showsVerticalScrollIndicator={false} style={styles.content}>
+            {/* User Info Section */}
+            <View style={styles.userSection}>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>SC</Text>
+              </View>
+              <View style={styles.userInfo}>
+                <View style={styles.userNameRow}>
+                  <Text style={styles.userName}>Shubham Chougule</Text>
+                </View>
+                <Text style={styles.buildingName}>G9 802</Text>
+              </View>
+              <TouchableOpacity style={styles.audienceDropdown}>
+                <Text style={styles.audienceText}>{audienceType}</Text>
+                <Ionicons name="chevron-down" size={20} color="#666" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Post Content Input */}
+            <TextInput
+              style={styles.textInput}
+              placeholder="What do you want to talk about?"
+              placeholderTextColor="#999"
+              multiline
+              value={postContent}
+              onChangeText={setPostContent}
+            />
+
+            {/* Media Options */}
+            <View style={styles.mediaSection}>
+              <TouchableOpacity style={styles.mediaButton}>
+                <Ionicons name="image-outline" size={24} color="#666" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.mediaButton}>
+                <Ionicons name="camera-outline" size={24} color="#666" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.mediaButton}>
+                <Ionicons name="videocam-outline" size={24} color="#666" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.mediaButton}>
+                <Ionicons name="attach-outline" size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+
+          {/* Post Button */}
+          <View style={styles.bottomBar}>
             <TouchableOpacity 
               onPress={handlePost}
               style={[styles.postButton, postContent.trim() === '' && styles.postButtonDisabled]}
             >
               <Text style={styles.postButtonText}>Post</Text>
+              <Ionicons name="send" size={18} color="#FFF" />
             </TouchableOpacity>
           </View>
-
-          <ScrollView showsVerticalScrollIndicator={false} style={styles.content}>
-            {/* User Info */}
-            <View style={styles.userSection}>
-              <View style={styles.avatar}>
-                <Ionicons name="person-circle-outline" size={48} color="#DDD" />
-              </View>
-              <View style={styles.userInfo}>
-                <Text style={styles.userName}>Your Name</Text>
-                <View style={styles.anonymousToggle}>
-                  <TouchableOpacity
-                    style={[styles.checkBox, isAnonymous && styles.checkBoxChecked]}
-                    onPress={() => setIsAnonymous(!isAnonymous)}
-                  >
-                    {isAnonymous && <Ionicons name="checkmark" size={16} color="#FFF" />}
-                  </TouchableOpacity>
-                  <Text style={styles.anonymousText}>Post Anonymously</Text>
-                </View>
-              </View>
-            </View>
-
-            {/* Post Content Input */}
-            <View style={styles.contentSection}>
-              <TextInput
-                style={styles.textInput}
-                placeholder="What's on your mind?"
-                placeholderTextColor="#999"
-                multiline
-                maxLength={500}
-                value={postContent}
-                onChangeText={setPostContent}
-              />
-              <View style={styles.charCounter}>
-                <Text style={styles.charCountText}>{postContent.length}/500</Text>
-              </View>
-            </View>
-
-            {/* Category Selection */}
-            <View style={styles.categorySection}>
-              <Text style={styles.sectionTitle}>Select Category</Text>
-              <ScrollView 
-                horizontal 
-                showsHorizontalScrollIndicator={false}
-                style={styles.categoryScroll}
-              >
-                {categories.map((category) => (
-                  <TouchableOpacity
-                    key={category.label}
-                    style={[
-                      styles.categoryButton,
-                      selectedCategory === category.label && styles.categoryButtonActive,
-                    ]}
-                    onPress={() => setSelectedCategory(category.label)}
-                  >
-                    <Ionicons 
-                      name={category.icon} 
-                      size={20} 
-                      color={selectedCategory === category.label ? '#FFF' : '#1D97E8'}
-                    />
-                    <Text
-                      style={[
-                        styles.categoryButtonText,
-                        selectedCategory === category.label && styles.categoryButtonTextActive,
-                      ]}
-                    >
-                      {category.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
-
-            {/* Privacy Settings */}
-            <View style={styles.privacySection}>
-              <Text style={styles.sectionTitle}>Privacy</Text>
-              <TouchableOpacity style={styles.privacyOption}>
-                <Ionicons name="people-outline" size={20} color="#1D97E8" />
-                <View style={styles.privacyInfo}>
-                  <Text style={styles.privacyLabel}>All Residents</Text>
-                  <Text style={styles.privacyDesc}>Visible to everyone in G9 802</Text>
-                </View>
-                <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Tips */}
-            <View style={styles.tipsSection}>
-              <Text style={styles.tipsTitle}>Tips for a good post:</Text>
-              <Text style={styles.tipItem}>• Be respectful and courteous</Text>
-              <Text style={styles.tipItem}>• Avoid personal attacks or harassment</Text>
-              <Text style={styles.tipItem}>• Stay on topic and relevant</Text>
-              <Text style={styles.tipItem}>• No spam or promotional content</Text>
-            </View>
-          </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </Modal>
@@ -188,32 +142,34 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    flex: 1,
-    textAlign: 'center',
-  },
-  closeButton: {
+  backButton: {
     width: 40,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  postButton: {
-    backgroundColor: '#1D97E8',
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 20,
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    flex: 1,
+    textAlign: 'center',
   },
-  postButtonDisabled: {
-    backgroundColor: '#CCC',
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
-  postButtonText: {
-    color: '#FFF',
-    fontWeight: '600',
+  guidelineButton: {
+    paddingHorizontal: 8,
+  },
+  guidelineText: {
     fontSize: 14,
+    color: '#0d3d2f',
+    fontWeight: '500',
+  },
+  infoButton: {
+    padding: 8,
   },
   content: {
     flex: 1,
@@ -221,145 +177,104 @@ const styles = StyleSheet.create({
   },
   userSection: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 20,
+    alignItems: 'center',
+    marginBottom: 24,
+    gap: 12,
   },
   avatar: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#0d3d2f',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  userInfo: {
+    flex: 1,
+  },
+  userNameRow: {
+    marginBottom: 4,
+  },
+  userName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1A1A1A',
+  },
+  buildingName: {
+    fontSize: 14,
+    color: '#666',
+  },
+  audienceDropdown: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 8,
+    gap: 4,
+  },
+  audienceText: {
+    fontSize: 13,
+    color: '#333',
+    fontWeight: '500',
+  },
+  textInput: {
+    minHeight: 150,
+    fontSize: 16,
+    color: '#333',
+    textAlignVertical: 'top',
+    marginBottom: 20,
+    paddingHorizontal: 0,
+  },
+  mediaSection: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    gap: 24,
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+    marginBottom: 120,
+  },
+  mediaButton: {
     width: 48,
     height: 48,
     borderRadius: 24,
     backgroundColor: '#F5F5F5',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
   },
-  userInfo: {
-    flex: 1,
+  bottomBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
   },
-  userName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  anonymousToggle: {
+  postButton: {
+    backgroundColor: '#0d3d2f',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
     flexDirection: 'row',
-    alignItems: 'center',
-  },
-  checkBox: {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: '#1D97E8',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 8,
+    gap: 8,
   },
-  checkBoxChecked: {
-    backgroundColor: '#1D97E8',
+  postButtonDisabled: {
+    backgroundColor: '#CCC',
   },
-  anonymousText: {
-    fontSize: 14,
-    color: '#666',
-  },
-  contentSection: {
-    marginBottom: 20,
-  },
-  textInput: {
-    borderRadiusize: 12,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    padding: 12,
-    minHeight: 120,
-    fontSize: 16,
-    color: '#333',
-    textAlignVertical: 'top',
-    borderRadius: 8,
-  },
-  charCounter: {
-    alignItems: 'flex-end',
-    marginTop: 8,
-  },
-  charCountText: {
-    fontSize: 12,
-    color: '#999',
-  },
-  categorySection: {
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 12,
-  },
-  categoryScroll: {
-    flexGrow: 0,
-  },
-  categoryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#1D97E8',
-    marginRight: 8,
-    backgroundColor: '#FFF',
-  },
-  categoryButtonActive: {
-    backgroundColor: '#1D97E8',
-  },
-  categoryButtonText: {
-    marginLeft: 6,
-    fontSize: 13,
-    color: '#1D97E8',
-    fontWeight: '500',
-  },
-  categoryButtonTextActive: {
+  postButtonText: {
     color: '#FFF',
-  },
-  privacySection: {
-    marginBottom: 20,
-  },
-  privacyOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    backgroundColor: '#F9F9F9',
-    borderRadius: 8,
-  },
-  privacyInfo: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  privacyLabel: {
-    fontSize: 14,
     fontWeight: '600',
-    color: '#333',
-  },
-  privacyDesc: {
-    fontSize: 12,
-    color: '#999',
-    marginTop: 2,
-  },
-  tipsSection: {
-    backgroundColor: '#F5F9FF',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  tipsTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#1E1E1E',
-    marginBottom: 8,
-  },
-  tipItem: {
-    fontSize: 12,
-    color: '#666',
-    marginVertical: 4,
+    fontSize: 16,
   },
 });

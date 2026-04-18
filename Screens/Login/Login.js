@@ -15,6 +15,7 @@ import {
   StatusBar,
   Alert,
 } from 'react-native';
+import { authLogin, authSignup } from '../../services/axios';
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_HEIGHT = SCREEN_HEIGHT * 0.82;
@@ -200,20 +201,72 @@ export default function SocietyScreen({ setIsLoggedIn }) {
       return;
     }
     setLoading(true);
-    // Simulate API call
-    await new Promise((r) => setTimeout(r, 1800));
-    setLoading(false);
-    setSubmitted(true);
-    Animated.spring(successScale, { toValue: 1, useNativeDriver: true, tension: 80, friction: 8 }).start();
-    setTimeout(() => {
-      setSubmitted(false);
-      successScale.setValue(0);
-      closeCard();
-      setFields({ fullName: '', email: '', mobile: '', flatNumber: '', password: '' });
-      setUploadedFile(null);
-      setErrors({});
-      setIsLoggedIn(true);
-    }, 2200);
+    try {
+      if (cardMode === 'login') {
+        await authLogin({
+          email: fields.email,
+          password: fields.password,
+        });
+      } else {
+        await authSignup({
+          fullName: fields.fullName,
+          email: fields.email,
+          mobile: fields.mobile,
+          flatNumber: fields.flatNumber,
+          password: fields.password,
+          proofDocument: uploadedFile || 'dummy-proof.pdf',
+        });
+      }
+
+      setSubmitted(true);
+      Animated.spring(successScale, { toValue: 1, useNativeDriver: true, tension: 80, friction: 8 }).start();
+      setTimeout(() => {
+        setSubmitted(false);
+        successScale.setValue(0);
+        closeCard();
+        setFields({ fullName: '', email: '', mobile: '', flatNumber: '', password: '' });
+        setUploadedFile(null);
+        setErrors({});
+
+        if (cardMode === 'login') {
+          setIsLoggedIn(true);
+        } else {
+          Alert.alert('Signup Submitted', 'Your profile is saved and sent for admin verification.');
+          setCardMode('login');
+        }
+      }, 2200);
+    } catch (error) {
+      console.error('Login error:', error);
+      const status = error?.response?.status;
+      const data = error?.response?.data;
+
+      if (status === 403 && data?.approvalStatus === 'pending') {
+        Alert.alert('Approval Pending', 'Your account is waiting for admin approval.');
+      } else if (status === 403 && data?.approvalStatus === 'rejected') {
+        Alert.alert('Approval Rejected', 'Your account was rejected by admin.');
+      } else if (status === 409) {
+        Alert.alert('Already Registered', data?.message || 'Email already exists.');
+      } else if (status === 401) {
+        Alert.alert('Authentication Failed', data?.message || 'Invalid email or password.');
+      } else if (status === 400) {
+        Alert.alert('Invalid Input', data?.message || 'Please check your information and try again.');
+      } else if (status === 404) {
+        Alert.alert(
+          'Backend Route Not Found',
+          data?.message || 'Auth endpoint not found. Please run the updated backend server that has /api/auth routes.'
+        );
+      } else if (status) {
+        Alert.alert('Error', data?.message || `Request failed with ${status}`);
+      } else {
+        Alert.alert(
+          'Backend Not Reachable',
+          error?.message ||
+            'Could not connect to backend. Ensure backend is running on port 5000 and use your machine IP for real devices.'
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const pwStrength = passwordStrength(fields.password);

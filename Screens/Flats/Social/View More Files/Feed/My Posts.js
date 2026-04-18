@@ -308,11 +308,7 @@ export function MyPostsModal({ visible, onClose }) {
         </View>
 
         {/* Filter Tabs */}
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          style={styles.filterScroll}
-        >
+        <View style={styles.filterScroll}>
           {filters.map((filter) => (
             <TouchableOpacity
               key={filter.value}
@@ -332,7 +328,7 @@ export function MyPostsModal({ visible, onClose }) {
               </Text>
             </TouchableOpacity>
           ))}
-        </ScrollView>
+        </View>
 
         {/* Posts List */}
         {filteredPosts.length > 0 ? (
@@ -391,28 +387,34 @@ const styles = StyleSheet.create({
   },
   filterScroll: {
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   filterButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    flex: 1,
+    height: 44,
     borderRadius: 20,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#E0E0E0',
     backgroundColor: '#FFF',
-    marginRight: 8,
+    marginHorizontal: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   filterButtonActive: {
-    backgroundColor: '#1D97E8',
-    borderColor: '#1D97E8',
+    backgroundColor: '#0d3d2f',
+    borderColor: '#0d3d2f',
   },
   filterButtonText: {
     fontSize: 13,
     color: '#666',
-    fontWeight: '500',
+    fontWeight: '600',
+    textAlign: 'center',
   },
   filterButtonTextActive: {
     color: '#FFF',
@@ -464,7 +466,7 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   categoryBadge: {
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#FFF3E0',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
@@ -474,7 +476,7 @@ const styles = StyleSheet.create({
   categoryBadgeText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#666',
+    color: '#0d3d2f',
   },
   postTitle: {
     fontSize: 15,
@@ -518,7 +520,7 @@ const styles = StyleSheet.create({
   pollBadgeTop: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1D97E8',
+    backgroundColor: '#0d3d2f',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
@@ -551,7 +553,7 @@ const styles = StyleSheet.create({
   },
   pollProgress: {
     height: '100%',
-    backgroundColor: '#1D97E8',
+    backgroundColor: '#FFC107',
   },
   pollOptionLabel: {
     flexDirection: 'row',
@@ -597,7 +599,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   eventStatusBadge: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#EAF7F1',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
@@ -605,7 +607,7 @@ const styles = StyleSheet.create({
   eventStatusText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#4CAF50',
+    color: '#0d3d2f',
   },
   eventBody: {
     borderTopWidth: 1,
@@ -637,16 +639,16 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#1D97E8',
+    borderColor: '#0d3d2f',
     backgroundColor: '#FFF',
   },
   eventButtonActive: {
-    backgroundColor: '#1D97E8',
+    backgroundColor: '#0d3d2f',
   },
   eventButtonText: {
     marginLeft: 6,
     fontSize: 12,
-    color: '#1D97E8',
+    color: '#0d3d2f',
     fontWeight: '600',
   },
   eventButtonTextActive: {

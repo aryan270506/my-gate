@@ -26,7 +26,7 @@ const helpProvidersData = [
     verified: true,
   },
   {
-    id: 2,
+    id: 2,   
     name: 'Rajesh Kumar',
     category: 'Plumber',
     experience: '8 years',
@@ -86,7 +86,7 @@ export function FindDailyHelpModal({ visible, onClose }) {
             <View style={styles.nameRow}>
               <Text style={styles.providerName}>{item.name}</Text>
               {item.verified && (
-                <Ionicons name="checkmark-circle" size={14} color="#4CAF50" />
+                <Ionicons name="checkmark-circle" size={14} color="#0d3d2f" />
               )}
             </View>
             <Text style={styles.category}>{item.category}</Text>
@@ -105,7 +105,7 @@ export function FindDailyHelpModal({ visible, onClose }) {
 
       <View style={styles.detailsRow}>
         <View style={styles.detailItem}>
-          <Ionicons name="time-outline" size={16} color="#1D97E8" />
+          <Ionicons name="time-outline" size={16} color="#0d3d2f" />
           <Text style={styles.detailText}>{item.availability}</Text>
         </View>
         <View style={styles.detailItem}>
@@ -126,7 +126,7 @@ export function FindDailyHelpModal({ visible, onClose }) {
           style={styles.messageButton}
           activeOpacity={0.7}
         >
-          <Ionicons name="chatbubble-outline" size={16} color="#1D97E8" />
+          <Ionicons name="chatbubble-outline" size={16} color="#0d3d2f" />
           <Text style={styles.messageButtonText}>Message</Text>
         </TouchableOpacity>
       </View>
@@ -210,7 +210,7 @@ export function FindDailyHelpModal({ visible, onClose }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9F9F9',
+    backgroundColor: '#FFF8EE',
   },
   header: {
     flexDirection: 'row',
@@ -275,8 +275,8 @@ const styles = StyleSheet.create({
     borderColor: '#DDD',
   },
   categoryButtonActive: {
-    backgroundColor: '#1D97E8',
-    borderColor: '#1D97E8',
+    backgroundColor: '#0d3d2f',
+    borderColor: '#0d3d2f',
   },
   categoryButtonText: {
     fontSize: 12,
@@ -312,14 +312,14 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#E8F4FF',
+    backgroundColor: '#FFF3E0',
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarText: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1D97E8',
+    color: '#0d3d2f',
   },
   nameSection: {
     flex: 1,
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F9F9F9',
+    backgroundColor: '#FFF8E7',
     paddingHorizontal: 10,
     paddingVertical: 8,
     borderRadius: 8,
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
   callButton: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#0d3d2f',
     borderRadius: 8,
     paddingVertical: 10,
     justifyContent: 'center',
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   messageButton: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: '#E8F4FF',
+    backgroundColor: '#FFF3E0',
     borderRadius: 8,
     paddingVertical: 10,
     justifyContent: 'center',
@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
   messageButtonText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#1D97E8',
+    color: '#0d3d2f',
   },
   emptyContainer: {
     alignItems: 'center',

@@ -5,7 +5,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -25,6 +24,7 @@ export function AllowKidExitModal({ visible, onClose }) {
       animationType="fade"
       transparent={true}
       visible={visible}
+      statusBarTranslucent={true}
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
@@ -102,6 +102,8 @@ export function AllowKidExitModal({ visible, onClose }) {
     </Modal>
   );
 }
+
+export default AllowKidExitModal;
 
 const styles = StyleSheet.create({
   overlay: {

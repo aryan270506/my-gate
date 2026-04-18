@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   Image,
   ScrollView,
@@ -8,7 +8,9 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { CartContext } from '../../../context/CartContext';
 
 const lineup = [
   {
@@ -59,6 +61,14 @@ const videos = [
 ];
 
 export default function DevicesScreen() {
+  const navigation = useNavigation();
+  const { getCartCount } = useContext(CartContext);
+  const cartCount = getCartCount();
+
+  const handleProductPress = (product) => {
+    navigation.navigate('ProductDetails', { product });
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
@@ -69,7 +79,16 @@ export default function DevicesScreen() {
           </View>
           <View style={styles.headerIcons}>
             <Ionicons name="newspaper-outline" size={28} color="#171717" />
-            <Ionicons name="add-circle-outline" size={28} color="#171717" />
+            <TouchableOpacity onPress={() => navigation.navigate('Cart')}>
+              <View style={styles.cartIconContainer}>
+                <Ionicons name="cart-outline" size={28} color="#171717" />
+                {cartCount > 0 && (
+                  <View style={styles.cartBadge}>
+                    <Text style={styles.cartBadgeText}>{cartCount}</Text>
+                  </View>
+                )}
+              </View>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -100,17 +119,22 @@ export default function DevicesScreen() {
         <Text style={styles.sectionTitle}>Explore the lineup (5)</Text>
         <View style={styles.productGrid}>
           {lineup.map((item) => (
-            <View key={item.title} style={styles.productCard}>
+            <TouchableOpacity 
+              key={item.title} 
+              style={styles.productCard}
+              activeOpacity={0.8}
+              onPress={() => handleProductPress(item)}
+            >
               <Image source={{ uri: item.image }} style={styles.productImage} />
               <Text style={styles.productTitle}>{item.title}</Text>
               <View style={styles.priceRow}>
                 <Text style={styles.price}>{item.price}</Text>
                 {!!item.oldPrice && <Text style={styles.oldPrice}>{item.oldPrice}</Text>}
               </View>
-              <TouchableOpacity style={styles.buyButton} activeOpacity={0.85}>
-                <Text style={styles.buyButtonText}>Buy{'\n'}Now</Text>
-              </TouchableOpacity>
-            </View>
+              <View style={styles.buyButton}>
+                <Text style={styles.buyButtonText}>View{'\n'}Details</Text>
+              </View>
+            </TouchableOpacity>
           ))}
         </View>
 
@@ -135,17 +159,22 @@ export default function DevicesScreen() {
         <Text style={styles.sectionTitle}>Shop Smart Devices Accessories</Text>
         <View style={styles.productGrid}>
           {accessories.map((item) => (
-            <View key={item.title} style={styles.productCard}>
+            <TouchableOpacity 
+              key={item.title} 
+              style={styles.productCard}
+              activeOpacity={0.8}
+              onPress={() => handleProductPress(item)}
+            >
               <Image source={{ uri: item.image }} style={styles.productImage} />
               <Text style={styles.productTitle}>{item.title}</Text>
               <View style={styles.priceRow}>
                 <Text style={styles.price}>{item.price}</Text>
                 {!!item.oldPrice && <Text style={styles.oldPrice}>{item.oldPrice}</Text>}
               </View>
-              <TouchableOpacity style={styles.buyButton} activeOpacity={0.85}>
-                <Text style={styles.buyButtonText}>Buy{'\n'}Now</Text>
-              </TouchableOpacity>
-            </View>
+              <View style={styles.buyButton}>
+                <Text style={styles.buyButtonText}>View{'\n'}Details</Text>
+              </View>
+            </TouchableOpacity>
           ))}
         </View>
 
@@ -192,6 +221,9 @@ const styles = StyleSheet.create({
   headerLeft: { flexDirection: 'row', alignItems: 'center' },
   title: { fontSize: 26, fontWeight: '800', color: '#181818', marginLeft: 12 },
   headerIcons: { flexDirection: 'row', alignItems: 'center', gap: 24 },
+  cartIconContainer: { position: 'relative' },
+  cartBadge: { position: 'absolute', top: -8, right: -8, backgroundColor: '#FF6B6B', borderRadius: 10, minWidth: 20, height: 20, alignItems: 'center', justifyContent: 'center' },
+  cartBadgeText: { fontSize: 12, fontWeight: '800', color: '#FFFFFF' },
   hero: { flexDirection: 'row', alignItems: 'center', marginTop: 8, marginBottom: 20 },
   heroText: { flex: 1, paddingRight: 10 },
   heroTitle: { fontSize: 26, fontWeight: '800', color: '#202020', marginBottom: 8 },

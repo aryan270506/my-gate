@@ -16,7 +16,6 @@ const categories = [
   { label: 'Packers and Movers', icon: 'cube-outline', scrollTo: 'packers' },
   { label: 'Outstation and Rental..', icon: 'car-sport-outline', scrollTo: 'outstation' },
   { label: 'Property Managem...', icon: 'home-outline', scrollTo: 'property' },
-  { label: 'Rent Space & Vehicles', icon: 'storefront-outline', scrollTo: 'roomrent' },
 ];
 
 const trending = [
@@ -93,108 +92,25 @@ const propertyServices = [
   { label: 'Vastu Consultant', emoji: '🧭' },
 ];
 
-// ── Rent Space & Vehicles — 3 tabs ──
-const rentTabs = [
-  { key: 'room', label: 'Room', icon: 'bed-outline', emoji: '🏡' },
-  { key: 'parking', label: 'Parking', icon: 'car-outline', emoji: '🅿️' },
-  { key: 'vehicle', label: 'Vehicle', icon: 'bicycle-outline', emoji: '🚗' },
-];
-
-const rentTabData = {
-  room: {
-    bannerTitle: 'Rent Your Room',
-    bannerSubtitle: 'Going away for months? Let your room earn for you — safely & hassle-free.',
-    bannerEmoji: '🏡',
-    ctaLabel: 'List My Room',
-    highlights: [
-      { icon: 'calendar-outline', title: 'Flexible Duration', desc: 'Weeks, months or a full year — you set the timeline.' },
-      { icon: 'shield-checkmark-outline', title: 'Verified Tenants', desc: 'Every tenant is background & ID verified.' },
-      { icon: 'cash-outline', title: 'On-Time Payouts', desc: 'Rent deposited directly to your bank every month.' },
-    ],
-    services: [
-      { label: 'List Your Room', emoji: '📝' },
-      { label: 'Short-Term Rent', emoji: '📅' },
-      { label: 'Long-Term Rent', emoji: '🗓️' },
-      { label: 'Furnished Room', emoji: '🛏️' },
-      { label: 'PG / Hostel', emoji: '🏨' },
-      { label: 'Studio Apartment', emoji: '🏠' },
-      { label: 'Caretaker Service', emoji: '🔑' },
-      { label: 'Rent Agreement', emoji: '📄' },
-      { label: 'Tenant Screening', emoji: '🔍' },
-      { label: 'Monthly Payout', emoji: '💸' },
-      { label: 'Property Insurance', emoji: '🛡️' },
-      { label: '24x7 Support', emoji: '📞' },
-    ],
-  },
-  parking: {
-    bannerTitle: 'Rent Your Parking',
-    bannerSubtitle: "Have an empty parking spot? Earn from it daily — no car or bike needed.",
-    bannerEmoji: '🅿️',
-    ctaLabel: 'List My Parking',
-    highlights: [
-      { icon: 'location-outline', title: 'Any Spot Works', desc: 'Society, building, open land — list any unused space.' },
-      { icon: 'lock-closed-outline', title: 'Secure Bookings', desc: 'Only verified users can book your parking spot.' },
-      { icon: 'wallet-outline', title: 'Daily Earnings', desc: 'Get paid per day, week or month — your choice.' },
-    ],
-    services: [
-      { label: 'List My Spot', emoji: '📍' },
-      { label: 'Open Parking', emoji: '🟦' },
-      { label: 'Covered Parking', emoji: '🏗️' },
-      { label: 'Society Parking', emoji: '🏘️' },
-      { label: 'Commercial Spot', emoji: '🏢' },
-      { label: 'EV Charging Spot', emoji: '⚡' },
-      { label: 'Daily Booking', emoji: '📅' },
-      { label: 'Monthly Pass', emoji: '🗓️' },
-      { label: 'CCTV Monitored', emoji: '📷' },
-      { label: 'Instant Payout', emoji: '💸' },
-      { label: 'Parking Agreement', emoji: '📄' },
-      { label: '24x7 Support', emoji: '📞' },
-    ],
-  },
-  vehicle: {
-    bannerTitle: 'Rent Out Your Vehicle',
-    bannerSubtitle: 'Car or bike sitting idle? Put it on rent and earn while you\'re away.',
-    bannerEmoji: '🚗',
-    ctaLabel: 'List My Vehicle',
-    highlights: [
-      { icon: 'car-sport-outline', title: 'Car & Bike Both', desc: 'List any personal vehicle — 2-wheeler or 4-wheeler.' },
-      { icon: 'shield-outline', title: 'Insurance Covered', desc: 'Rental period is covered with trip insurance.' },
-      { icon: 'speedometer-outline', title: 'Track & Control', desc: 'Set your own price, availability and rules.' },
-    ],
-    services: [
-      { label: 'List Your Car', emoji: '🚗' },
-      { label: 'List Your Bike', emoji: '🏍️' },
-      { label: 'Self-Drive Rental', emoji: '🔑' },
-      { label: 'Driver Assisted', emoji: '👨‍✈️' },
-      { label: 'Hourly Rental', emoji: '⏱️' },
-      { label: 'Daily Rental', emoji: '📅' },
-      { label: 'Weekly Rental', emoji: '🗓️' },
-      { label: 'Trip Insurance', emoji: '🛡️' },
-      { label: 'Vehicle Tracking', emoji: '📡' },
-      { label: 'Damage Protection', emoji: '🔒' },
-      { label: 'Instant Payout', emoji: '💸' },
-      { label: '24x7 Support', emoji: '📞' },
-    ],
-  },
-};
-
 export default function ServicesScreen() {
   const scrollViewRef = useRef(null);
   const [isSticky, setIsSticky] = useState(false);
-  const [activeRentTab, setActiveRentTab] = useState('room');
 
+  // Y-offset refs for each section (absolute positions in scroll view)
   const sectionYRefs = useRef({
     urban: 0,
     packers: 0,
     outstation: 0,
     property: 0,
-    roomrent: 0,
   });
 
+  // The Y position where the categories bar originally sits in the scroll view
+  // We'll capture it via onLayout of the categories container
   const categoriesOriginalY = useRef(0);
 
   const handleScroll = (event) => {
     const scrollY = event.nativeEvent.contentOffset.y;
+    // Make sticky once scroll passes the original categories position
     setIsSticky(scrollY >= categoriesOriginalY.current);
   };
 
@@ -203,12 +119,9 @@ export default function ServicesScreen() {
     scrollViewRef.current?.scrollTo({ y: y - 16, animated: true });
   };
 
+  // The categories bar content — reused in both inline and sticky positions
   const CategoriesBar = () => (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.categoryRow}
-    >
+    <View style={styles.categoryRow}>
       {categories.map((item) => (
         <TouchableOpacity
           key={item.label}
@@ -222,11 +135,12 @@ export default function ServicesScreen() {
           <Text style={styles.categoryLabel}>{item.label}</Text>
         </TouchableOpacity>
       ))}
-    </ScrollView>
+    </View>
   );
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      {/* ── STICKY CATEGORIES BAR (renders on top when scrolled past) ── */}
       {isSticky && (
         <View style={styles.stickyBar}>
           <CategoriesBar />
@@ -251,12 +165,14 @@ export default function ServicesScreen() {
         </View>
 
         <View style={styles.gradientBand}>
-          {/* Categories */}
+          {/* Categories — inline (original position) */}
           <Text style={styles.sectionTitle}>Categories</Text>
           <View
             onLayout={(e) => {
+              // Capture absolute Y of the categories row in the scroll view
               categoriesOriginalY.current = e.nativeEvent.layout.y;
             }}
+            // When sticky is active, keep a ghost placeholder so layout doesn't jump
             style={isSticky ? styles.categoriesPlaceholder : null}
           >
             {!isSticky && <CategoriesBar />}
@@ -360,86 +276,6 @@ export default function ServicesScreen() {
               ))}
             </View>
           </View>
-
-          {/* ── Rent Space & Vehicles Panel ── */}
-          <View
-            style={styles.roomRentPanel}
-            onLayout={(e) => {
-              sectionYRefs.current.roomrent = e.nativeEvent.layout.y;
-            }}
-          >
-            {/* Tab selector */}
-            <View style={styles.rentTabRow}>
-              {rentTabs.map((tab) => (
-                <TouchableOpacity
-                  key={tab.key}
-                  style={[styles.rentTab, activeRentTab === tab.key && styles.rentTabActive]}
-                  onPress={() => setActiveRentTab(tab.key)}
-                  activeOpacity={0.8}
-                >
-                  <Ionicons
-                    name={tab.icon}
-                    size={18}
-                    color={activeRentTab === tab.key ? '#FFFFFF' : '#163841'}
-                  />
-                  <Text
-                    style={[
-                      styles.rentTabLabel,
-                      activeRentTab === tab.key && styles.rentTabLabelActive,
-                    ]}
-                  >
-                    {tab.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {/* Banner */}
-            <View style={styles.roomRentBanner}>
-              <View style={styles.roomRentBannerTextCol}>
-                <Text style={styles.roomRentBannerTitle}>
-                  {rentTabData[activeRentTab].bannerTitle}
-                </Text>
-                <Text style={styles.roomRentBannerSubtitle}>
-                  {rentTabData[activeRentTab].bannerSubtitle}
-                </Text>
-                <TouchableOpacity style={styles.roomRentCTA} activeOpacity={0.82}>
-                  <Text style={styles.roomRentCTAText}>
-                    {rentTabData[activeRentTab].ctaLabel}
-                  </Text>
-                  <Ionicons name="arrow-forward" size={16} color="#163841" />
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.roomRentBannerEmoji}>
-                {rentTabData[activeRentTab].bannerEmoji}
-              </Text>
-            </View>
-
-            {/* Highlight cards */}
-            <View style={styles.roomRentHighlightRow}>
-              {rentTabData[activeRentTab].highlights.map((h) => (
-                <View key={h.title} style={styles.highlightCard}>
-                  <Ionicons name={h.icon} size={24} color="#163841" />
-                  <Text style={styles.highlightTitle}>{h.title}</Text>
-                  <Text style={styles.highlightDesc}>{h.desc}</Text>
-                </View>
-              ))}
-            </View>
-
-            {/* Divider */}
-            <View style={styles.roomRentDivider} />
-
-            {/* Services grid */}
-            <Text style={styles.roomRentGridLabel}>What's included</Text>
-            <View style={[styles.urbanGrid, { paddingHorizontal: 16 }]}>
-              {rentTabData[activeRentTab].services.map((item) => (
-                <TouchableOpacity key={item.label} style={styles.urbanItem} activeOpacity={0.75}>
-                  <Text style={styles.urbanEmoji}>{item.emoji}</Text>
-                  <Text style={styles.urbanLabel}>{item.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -450,14 +286,17 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#F5F1E8' },
   content: { paddingBottom: 28 },
 
+  // ── Sticky bar ──
   stickyBar: {
     position: 'absolute',
-    top: Platform.OS === 'ios' ? 54 : 0,
+    top: Platform.OS === 'ios' ? 54 : 0, // below SafeAreaView top inset
     left: 0,
     right: 0,
     zIndex: 999,
     backgroundColor: '#F5F1E8',
     paddingVertical: 10,
+    paddingHorizontal: 0,
+    // Shadow to visually separate from content
     shadowColor: '#CFC7BA',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
@@ -467,14 +306,15 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E8E3D8',
   },
 
+  // Ghost placeholder to prevent layout jump when bar goes sticky
   categoriesPlaceholder: {
-    height: 120,
+    height: 120, // approx height of the categories row
     marginBottom: 30,
   },
 
   header: {
     paddingHorizontal: 20,
-    paddingTop: 28,
+    paddingTop: 16,
     paddingBottom: 18,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -488,7 +328,7 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 28, fontWeight: '800', color: '#151515' },
   headerIcons: { flexDirection: 'row', alignItems: 'center', gap: 22 },
-  gradientBand: { paddingTop: 0, paddingBottom: 40, backgroundColor: '#F5F1E8' },
+  gradientBand: { paddingTop: 18 },
   sectionTitle: {
     fontSize: 28,
     fontWeight: '800',
@@ -496,16 +336,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 18,
   },
-
-  // Categories — now horizontal scroll to fit 5 items
   categoryRow: {
     flexDirection: 'row',
-    paddingHorizontal: 15,
-    paddingBottom: 4,
-    marginBottom: 26,
-    gap: 12,
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    marginBottom: 30,
   },
-  categoryItem: { width: 84, alignItems: 'center' },
+  categoryItem: { width: '23%' },
   categoryIconBox: {
     width: 84,
     height: 84,
@@ -520,13 +357,7 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 4,
   },
-  // Accent style for the new Room Rent category icon
-  categoryIconBoxAccent: {
-    backgroundColor: '#163841',
-  },
   categoryLabel: { fontSize: 12, color: '#20383E', textAlign: 'center' },
-  categoryLabelAccent: { fontWeight: '700', color: '#163841' },
-
   trendingGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -557,6 +388,7 @@ const styles = StyleSheet.create({
   serviceTitle: { fontSize: 17, fontWeight: '700', color: '#141414' },
   serviceBrand: { fontSize: 15, color: '#2E2E2E', marginTop: 6 },
 
+  // Urban Company panel
   urbanPanel: {
     backgroundColor: '#FFFFFF',
     borderRadius: 30,
@@ -571,6 +403,7 @@ const styles = StyleSheet.create({
   urbanEmoji: { fontSize: 54, marginBottom: 10 },
   urbanLabel: { fontSize: 13, color: '#242424', textAlign: 'center', lineHeight: 17 },
 
+  // Shared style for new panels
   sectionPanel: {
     backgroundColor: '#FFFFFF',
     borderRadius: 30,
@@ -585,105 +418,4 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   panelTitle: { fontSize: 22, fontWeight: '800', color: '#151515' },
-
-  // ── Room Rent panel ──
-  roomRentPanel: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 30,
-    marginHorizontal: 20,
-    marginTop: 18,
-    paddingBottom: 22,
-    overflow: 'hidden',
-  },
-
-  // Tab row
-  rentTabRow: {
-    flexDirection: 'row',
-    marginHorizontal: 16,
-    marginTop: 18,
-    marginBottom: 18,
-    backgroundColor: '#F0EDE6',
-    borderRadius: 16,
-    padding: 4,
-    gap: 4,
-  },
-  rentTab: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
-    borderRadius: 12,
-    gap: 6,
-  },
-  rentTabActive: {
-    backgroundColor: '#163841',
-  },
-  rentTabLabel: { fontSize: 13, fontWeight: '600', color: '#163841' },
-  rentTabLabelActive: { color: '#FFFFFF' },
-
-  // Top banner inside the panel
-  roomRentBanner: {
-    backgroundColor: '#E8F4F2',
-    paddingHorizontal: 20,
-    paddingTop: 22,
-    paddingBottom: 22,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-  },
-  roomRentBannerTextCol: { flex: 1, paddingRight: 10 },
-  roomRentBannerTitle: { fontSize: 24, fontWeight: '900', color: '#163841', marginBottom: 8 },
-  roomRentBannerSubtitle: { fontSize: 14, color: '#2E5059', lineHeight: 20, marginBottom: 16 },
-  roomRentCTA: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    gap: 6,
-    shadowColor: '#163841',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  roomRentCTAText: { fontSize: 15, fontWeight: '700', color: '#163841' },
-  roomRentBannerEmoji: { fontSize: 72, marginTop: 4 },
-
-  // Highlight cards
-  roomRentHighlightRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 6,
-    gap: 10,
-  },
-  highlightCard: {
-    flex: 1,
-    backgroundColor: '#F7F4EF',
-    borderRadius: 18,
-    padding: 14,
-    alignItems: 'flex-start',
-    gap: 6,
-  },
-  highlightTitle: { fontSize: 13, fontWeight: '700', color: '#163841', marginTop: 4 },
-  highlightDesc: { fontSize: 11, color: '#4A6870', lineHeight: 15 },
-
-  roomRentDivider: {
-    height: 1,
-    backgroundColor: '#EDE9E0',
-    marginHorizontal: 16,
-    marginVertical: 18,
-  },
-  roomRentGridLabel: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#151515',
-    paddingHorizontal: 16,
-    marginBottom: 16,
-  },
 });

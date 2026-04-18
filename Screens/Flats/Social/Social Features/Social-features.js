@@ -10,9 +10,31 @@ import {
   StatusBar,
   Image,
   FlatList,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { logFeatureInteraction } from '../../../../services/axios';
+
+const trackFeatureTap = async (featureName, context = {}) => {
+  const normalizedName = String(featureName || '').trim();
+
+  if (!normalizedName) {
+    return;
+  }
+
+  try {
+    await logFeatureInteraction({
+      featureName: normalizedName,
+      source: 'social-features',
+      screen: 'Social Features',
+      actionType: 'press',
+      metadata: context,
+    });
+  } catch (error) {
+    console.log('Feature tracking failed:', error?.message || error);
+  }
+};
 
 // PreApproveModal Component
 const PreApproveModal = ({ visible, onClose, onSelectOption }) => {
@@ -20,12 +42,12 @@ const PreApproveModal = ({ visible, onClose, onSelectOption }) => {
     { label: 'Guest', icon: 'person-outline' },
     { label: 'Cab', icon: 'car-sport-outline' },
     { label: 'Delivery', icon: 'cube-outline' },
-    { label: 'Visiting Help', icon: 'briefcase-outline' },
+    { label: 'Visiting Help', icon: 'build-outline' },
   ];
 
   const handleOptionPress = (option) => {
     console.log('Pre-approve option selected:', option);
-    onClose();
+    trackFeatureTap(option, { section: 'pre-approve-modal' });
     if (onSelectOption) {
       onSelectOption(option);
     }
@@ -43,7 +65,7 @@ const PreApproveModal = ({ visible, onClose, onSelectOption }) => {
           <View style={preApproveStyles.dragHandle} />
           
           <TouchableOpacity style={preApproveStyles.closeX} onPress={onClose} activeOpacity={0.7}>
-            <Ionicons name="close" size={24} color="#4A4A4A" />
+            <Ionicons name="close" size={20} color="#4A4A4A" />
           </TouchableOpacity>
 
           <View style={preApproveStyles.header}>
@@ -64,16 +86,96 @@ const PreApproveModal = ({ visible, onClose, onSelectOption }) => {
                 onPress={() => handleOptionPress(option.label)}
               >
                 <View style={preApproveStyles.optionIconContainer}>
-                  <Ionicons name={option.icon} size={32} color="#1D97E8" />
+                  <Ionicons name={option.icon} size={36} color="#0d3d2f" />
                 </View>
                 <Text style={preApproveStyles.optionText}>{option.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
 
-          <Text style={preApproveStyles.footerNote}>
-            Select an option to pre-approve future entries
-          </Text>
+          {/* Advertisement Section */}
+          <View style={preApproveStyles.adSection}>
+            <View style={preApproveStyles.adContent}>
+              <View style={preApproveStyles.adTextBlock}>
+                <Text style={preApproveStyles.adBrand}>INDRIYA</Text>
+                <Text style={preApproveStyles.adCategory}>ADITYA BIRLA | JEWELLERY</Text>
+              </View>
+              <View style={preApproveStyles.adPromo}>
+                <Text style={preApproveStyles.adDiscount}>35%</Text>
+                <Text style={preApproveStyles.adPromoText}>off on gold jewellery</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
+// Security Modal Component
+const SecurityModal = ({ visible, onClose, onSelectOption }) => {
+  const securityOptions = [
+    { label: 'Raise Alert', icon: 'radio-button-outline' },
+    { label: 'Call Security', icon: 'call-outline' },
+    { label: 'Message to Guard', icon: 'mail-outline' },
+    { label: 'Search a Vehicle', icon: 'car-sport-outline' },
+    { label: 'Allow Kid Exit', icon: 'happy-outline' },
+  ];
+
+  const handleOptionPress = (option) => {
+    console.log('Security option selected:', option);
+    trackFeatureTap(option, { section: 'security-modal' });
+    onClose();
+    if (onSelectOption) {
+      onSelectOption(option);
+    }
+  };
+
+  return (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
+      <View style={securityStyles.overlay}>
+        <View style={securityStyles.modalContainer}>
+          <View style={securityStyles.dragHandle} />
+          
+          <TouchableOpacity style={securityStyles.closeX} onPress={onClose} activeOpacity={0.7}>
+            <Ionicons name="close" size={20} color="#4A4A4A" />
+          </TouchableOpacity>
+
+          <Text style={securityStyles.title}>Security</Text>
+
+          <View style={securityStyles.optionsGrid}>
+            {securityOptions.map((option) => (
+              <TouchableOpacity 
+                key={option.label}
+                style={securityStyles.option} 
+                activeOpacity={0.7}
+                onPress={() => handleOptionPress(option.label)}
+              >
+                <View style={securityStyles.optionIconContainer}>
+                  <Ionicons name={option.icon} size={28} color="#0d3d2f" />
+                </View>
+                <Text style={securityStyles.optionText}>{option.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* Advertisement Section */}
+          <View style={securityStyles.adSection}>
+            <View style={securityStyles.adContent}>
+              <View style={securityStyles.adTextBlock}>
+                <Text style={securityStyles.adBrand}>LG</Text>
+                <Text style={securityStyles.adCategory}>Life's Good.</Text>
+              </View>
+              <View style={securityStyles.adPromo}>
+                <Text style={securityStyles.adBanner}>LG BIG French Door</Text>
+              </View>
+            </View>
+          </View>
         </View>
       </View>
     </Modal>
@@ -358,7 +460,7 @@ const DeliveriesScreen = ({ visible, onClose }) => {
       <View style={deliveriesStyles.cardHeader}>
         <View style={deliveriesStyles.itemInfo}>
           <View style={deliveriesStyles.itemIcon}>
-            <Ionicons name="cube-outline" size={24} color="#1D97E8" />
+            <Ionicons name="cube-outline" size={24} color="#0d3d2f" />
           </View>
           <View>
             <Text style={deliveriesStyles.itemName}>{item.item}</Text>
@@ -410,15 +512,15 @@ const DeliveriesScreen = ({ visible, onClose }) => {
       {selectedTab === 'upcoming' && item.status !== 'delivered' && (
         <View style={deliveriesStyles.cardActions}>
           <TouchableOpacity style={deliveriesStyles.actionButton}>
-            <Ionicons name="call-outline" size={20} color="#1D97E8" />
+            <Ionicons name="call-outline" size={20} color="#0d3d2f" />
             <Text style={deliveriesStyles.actionButtonText}>Call</Text>
           </TouchableOpacity>
           <TouchableOpacity style={deliveriesStyles.actionButton}>
-            <Ionicons name="chatbubble-outline" size={20} color="#1D97E8" />
+            <Ionicons name="chatbubble-outline" size={20} color="#0d3d2f" />
             <Text style={deliveriesStyles.actionButtonText}>Message</Text>
           </TouchableOpacity>
           <TouchableOpacity style={deliveriesStyles.actionButton}>
-            <Ionicons name="location-outline" size={20} color="#1D97E8" />
+            <Ionicons name="location-outline" size={20} color="#0d3d2f" />
             <Text style={deliveriesStyles.actionButtonText}>Track</Text>
           </TouchableOpacity>
         </View>
@@ -500,7 +602,7 @@ const DeliveriesScreen = ({ visible, onClose }) => {
           <TouchableOpacity 
             style={deliveriesStyles.scheduleNewButton}
             onPress={() => setShowScheduleModal(true)}>
-            <Ionicons name="add-circle-outline" size={24} color="#1D97E8" />
+            <Ionicons name="add-circle-outline" size={24} color="#0d3d2f" />
           </TouchableOpacity>
         </View>
 
@@ -539,7 +641,7 @@ const DeliveriesScreen = ({ visible, onClose }) => {
                 <Ionicons 
                   name={slot.icon} 
                   size={16} 
-                  color={selectedTimeSlot === slot.id ? '#1D97E8' : '#666'} 
+                  color={selectedTimeSlot === slot.id ? '#0d3d2f' : '#666'} 
                 />
                 <Text style={[
                   deliveriesStyles.timeFilterText,
@@ -727,7 +829,7 @@ const VisitorsScreen = ({ visible, onClose }) => {
       <View style={visitorsStyles.cardHeader}>
         <View style={visitorsStyles.visitorInfo}>
           <View style={visitorsStyles.visitorAvatar}>
-            <Ionicons name={getPurposeIcon(item.purpose)} size={28} color="#1D97E8" />
+            <Ionicons name={getPurposeIcon(item.purpose)} size={28} color="#0d3d2f" />
           </View>
           <View>
             <Text style={visitorsStyles.visitorName}>{item.name}</Text>
@@ -962,7 +1064,7 @@ const VisitorsScreen = ({ visible, onClose }) => {
             <>
               <View style={visitorsStyles.detailHeader}>
                 <View style={visitorsStyles.detailAvatar}>
-                  <Ionicons name={getPurposeIcon(selectedVisitor.purpose)} size={50} color="#1D97E8" />
+                  <Ionicons name={getPurposeIcon(selectedVisitor.purpose)} size={50} color="#0d3d2f" />
                 </View>
                 <Text style={visitorsStyles.detailName}>{selectedVisitor.name}</Text>
                 <Text style={visitorsStyles.detailPurpose}>{selectedVisitor.purpose}</Text>
@@ -970,16 +1072,16 @@ const VisitorsScreen = ({ visible, onClose }) => {
 
               <View style={visitorsStyles.detailInfo}>
                 <View style={visitorsStyles.detailInfoRow}>
-                  <Ionicons name="call-outline" size={20} color="#1D97E8" />
+                  <Ionicons name="call-outline" size={20} color="#0d3d2f" />
                   <Text style={visitorsStyles.detailInfoText}>{selectedVisitor.phone}</Text>
                 </View>
                 <View style={visitorsStyles.detailInfoRow}>
-                  <Ionicons name="home-outline" size={20} color="#1D97E8" />
+                  <Ionicons name="home-outline" size={20} color="#0d3d2f" />
                   <Text style={visitorsStyles.detailInfoText}>Flat {selectedVisitor.flatNo}, {selectedVisitor.floor}</Text>
                 </View>
                 {selectedVisitor.expectedTime && (
                   <View style={visitorsStyles.detailInfoRow}>
-                    <Ionicons name="time-outline" size={20} color="#1D97E8" />
+                    <Ionicons name="time-outline" size={20} color="#0d3d2f" />
                     <Text style={visitorsStyles.detailInfoText}>{selectedVisitor.expectedTime} • {selectedVisitor.duration}</Text>
                   </View>
                 )}
@@ -1003,7 +1105,7 @@ const VisitorsScreen = ({ visible, onClose }) => {
                   <Text style={visitorsStyles.detailCallButtonText}>Call</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={visitorsStyles.detailMessageButton}>
-                  <Ionicons name="chatbubble-outline" size={20} color="#1D97E8" />
+                  <Ionicons name="chatbubble-outline" size={20} color="#0d3d2f" />
                   <Text style={visitorsStyles.detailMessageButtonText}>Message</Text>
                 </TouchableOpacity>
               </View>
@@ -1032,7 +1134,7 @@ const VisitorsScreen = ({ visible, onClose }) => {
           <TouchableOpacity 
             style={visitorsStyles.addButton}
             onPress={() => setShowAddVisitor(true)}>
-            <Ionicons name="add-circle-outline" size={24} color="#1D97E8" />
+            <Ionicons name="add-circle-outline" size={24} color="#0d3d2f" />
           </TouchableOpacity>
         </View>
 
@@ -1102,7 +1204,7 @@ const VisitorsScreen = ({ visible, onClose }) => {
 const visitorsStyles = {
   container: {
     flex: 1,
-    backgroundColor: '#F7F3EA',
+    backgroundColor: '#FFF8EE',
   },
   header: {
     flexDirection: 'row',
@@ -1157,7 +1259,7 @@ const visitorsStyles = {
     borderBottomColor: 'transparent',
   },
   activeTab: {
-    borderBottomColor: '#1D97E8',
+    borderBottomColor: '#0d3d2f',
   },
   tabText: {
     fontSize: 14,
@@ -1165,7 +1267,7 @@ const visitorsStyles = {
     fontWeight: '500',
   },
   activeTabText: {
-    color: '#1D97E8',
+    color: '#0d3d2f',
     fontWeight: '600',
   },
   listContainer: {
@@ -1197,7 +1299,7 @@ const visitorsStyles = {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#E3F2FD',
+    backgroundColor: '#FFF3E0',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -1218,20 +1320,20 @@ const visitorsStyles = {
     borderRadius: 12,
   },
   approvedBadge: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#EAF7F1',
   },
   pendingBadge: {
-    backgroundColor: '#FFF3E0',
+    backgroundColor: '#FFF8E7',
   },
   approvalText: {
     fontSize: 12,
     fontWeight: '600',
   },
   approvedText: {
-    color: '#4CAF50',
+    color: '#0d3d2f',
   },
   pendingText: {
-    color: '#FF9800',
+    color: '#FFC107',
   },
   cardDetails: {
     borderTopWidth: 1,
@@ -1289,12 +1391,12 @@ const visitorsStyles = {
     marginBottom: 12,
   },
   activeAvatar: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#EAF7F1',
   },
   activeBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#EAF7F1',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
@@ -1302,12 +1404,12 @@ const visitorsStyles = {
   activeText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#4CAF50',
+    color: '#0d3d2f',
     marginLeft: 4,
   },
   checkoutButton: {
     marginTop: 12,
-    backgroundColor: '#FF9800',
+    backgroundColor: '#FFC107',
     borderRadius: 8,
     paddingVertical: 10,
     alignItems: 'center',
@@ -1485,7 +1587,7 @@ const visitorsStyles = {
     color: '#999',
   },
   submitButton: {
-    backgroundColor: '#1D97E8',
+    backgroundColor: '#0d3d2f',
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
@@ -1537,7 +1639,7 @@ const visitorsStyles = {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#E3F2FD',
+    backgroundColor: '#FFF3E0',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
@@ -1572,7 +1674,7 @@ const visitorsStyles = {
   detailCallButton: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: '#1D97E8',
+    backgroundColor: '#0d3d2f',
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',
@@ -1599,7 +1701,7 @@ const visitorsStyles = {
     marginLeft: 8,
     fontSize: 16,
     fontWeight: '600',
-    color: '#1D97E8',
+    color: '#0d3d2f',
   },
 };
 
@@ -1607,7 +1709,7 @@ const visitorsStyles = {
 const deliveriesStyles = {
   container: {
     flex: 1,
-    backgroundColor: '#F7F3EA',
+    backgroundColor: '#FFF8EE',
   },
   header: {
     flexDirection: 'row',
@@ -1644,7 +1746,7 @@ const deliveriesStyles = {
     borderBottomColor: 'transparent',
   },
   activeTab: {
-    borderBottomColor: '#1D97E8',
+    borderBottomColor: '#0d3d2f',
   },
   tabText: {
     fontSize: 16,
@@ -1652,7 +1754,7 @@ const deliveriesStyles = {
     fontWeight: '500',
   },
   activeTabText: {
-    color: '#1D97E8',
+    color: '#0d3d2f',
     fontWeight: '600',
   },
   timeFilterContainer: {
@@ -1671,7 +1773,7 @@ const deliveriesStyles = {
     marginRight: 12,
   },
   activeTimeFilter: {
-    backgroundColor: '#E3F2FD',
+    backgroundColor: '#FFF3E0',
   },
   timeFilterText: {
     marginLeft: 6,
@@ -1679,7 +1781,7 @@ const deliveriesStyles = {
     color: '#666',
   },
   activeTimeFilterText: {
-    color: '#1D97E8',
+    color: '#0d3d2f',
     fontWeight: '500',
   },
   listContainer: {
@@ -1711,7 +1813,7 @@ const deliveriesStyles = {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#E3F2FD',
+    backgroundColor: '#FFF3E0',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -1788,7 +1890,7 @@ const deliveriesStyles = {
   actionButtonText: {
     marginLeft: 6,
     fontSize: 14,
-    color: '#1D97E8',
+    color: '#0d3d2f',
     fontWeight: '500',
   },
   emptyContainer: {
@@ -1898,7 +2000,7 @@ const deliveriesStyles = {
     textAlignVertical: 'top',
   },
   scheduleButton: {
-    backgroundColor: '#1D97E8',
+    backgroundColor: '#0d3d2f',
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
@@ -1921,9 +2023,9 @@ const preApproveStyles = {
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingTop: 12,
-    paddingBottom: 30,
+    paddingBottom: 24,
   },
   dragHandle: {
     width: 40,
@@ -1931,12 +2033,12 @@ const preApproveStyles = {
     backgroundColor: '#E0E0E0',
     borderRadius: 2,
     alignSelf: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   closeX: {
     position: 'absolute',
     top: 12,
-    right: 20,
+    right: 16,
     zIndex: 10,
     width: 40,
     height: 40,
@@ -1948,72 +2050,220 @@ const preApproveStyles = {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '800',
     color: '#1A1A1A',
   },
   adBadge: {
     backgroundColor: '#F5F5F5',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
   },
   adBadgeText: {
-    fontSize: 12,
+    fontSize: 10,
     color: '#999',
     fontWeight: '500',
   },
   subtitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333333',
-    marginBottom: 24,
-    lineHeight: 24,
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#1a1a1a',
+    marginBottom: 20,
+    lineHeight: 22,
+    textAlign: 'center',
   },
   optionsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 24,
+    justifyContent: 'space-around',
+    marginBottom: 20,
+    paddingHorizontal: 0,
   },
   option: {
-    width: '48%',
-    backgroundColor: '#F8F8F8',
-    borderRadius: 16,
-    paddingVertical: 20,
+    width: '24%',
     alignItems: 'center',
     marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#EEEEEE',
   },
   optionIconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#FFFFFF',
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: '#FFC107',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    marginBottom: 8,
+    shadowColor: '#0d3d2f',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 3,
   },
   optionText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
-    color: '#2C3E50',
+    color: '#1a1a1a',
+    textAlign: 'center',
+    lineHeight: 14,
+  },
+  adSection: {
+    backgroundColor: '#FFF3E0',
+    borderRadius: 12,
+    padding: 12,
+    marginTop: 12,
+  },
+  adContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  adTextBlock: {
+    flex: 1,
+  },
+  adBrand: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#0d3d2f',
+    letterSpacing: 1.2,
+  },
+  adCategory: {
+    fontSize: 8,
+    fontWeight: '600',
+    color: '#FF6B6B',
+    marginTop: 1,
+  },
+  adPromo: {
+    alignItems: 'center',
+  },
+  adDiscount: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#FFC107',
+  },
+  adPromoText: {
+    fontSize: 8,
+    fontWeight: '500',
+    color: '#666666',
+    marginTop: 1,
+  },
+};
+
+// Styles for Security Modal
+const securityStyles = {
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContainer: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 24,
+  },
+  dragHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 12,
+  },
+  closeX: {
+    position: 'absolute',
+    top: 12,
+    right: 16,
+    zIndex: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: '800',
+    color: '#1A1A1A',
+    marginBottom: 18,
+    marginTop: 8,
     textAlign: 'center',
   },
-  footerNote: {
+  optionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    marginBottom: 18,
+    paddingHorizontal: 6,
+  },
+  option: {
+    width: '30%',
+    maxWidth: 110,
+    minWidth: 92,
+    alignItems: 'center',
+    marginBottom: 16,
+    marginHorizontal: '1.6%',
+  },
+  optionIconContainer: {
+    width: 82,
+    height: 82,
+    borderRadius: 41,
+    backgroundColor: '#FFC107',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+    shadowColor: '#0d3d2f',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  optionText: {
     fontSize: 12,
-    color: '#999',
+    fontWeight: '600',
+    color: '#1a1a1a',
     textAlign: 'center',
-    marginTop: 8,
+    lineHeight: 15,
+  },
+  adSection: {
+    backgroundColor: '#FFF3E0',
+    borderRadius: 12,
+    padding: 12,
+    marginTop: 12,
+  },
+  adContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  adTextBlock: {
+    flex: 1,
+  },
+  adBrand: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#0d3d2f',
+    letterSpacing: 1.2,
+  },
+  adCategory: {
+    fontSize: 8,
+    fontWeight: '600',
+    color: '#FF6B6B',
+    marginTop: 1,
+  },
+  adBanner: {
+    fontSize: 9,
+    fontWeight: '600',
+    color: '#666666',
+    textAlign: 'right',
+  },
+  adPromo: {
+    alignItems: 'flex-end',
   },
 };
 
@@ -2027,7 +2277,8 @@ const dailyHelpStyles = {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    paddingHorizontal: 16 
+    ,
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
@@ -2128,7 +2379,7 @@ const dailyHelpStyles = {
   },
   sectionSeeAll: {
     fontSize: 14,
-    color: '#1D97E8',
+    color: '#0d3d2f',
     fontWeight: '600',
   },
   horizontalScroll: {
@@ -2223,4 +2474,288 @@ const dailyHelpStyles = {
   },
 };
 
-export { PreApproveModal, DailyHelpScreen, DeliveriesScreen, VisitorsScreen };
+// ============================================
+// QUICK ACTIONS COMPONENTS & DATA
+// ============================================
+
+// Quick Actions Data
+const homeActions = [
+  { label: 'Pre-Appr...', icon: 'person-add-outline' },
+  { label: 'Security', icon: 'shield-outline' },
+  { label: 'Ask Society', icon: 'help-circle-outline' },
+  { label: 'Posts', icon: 'document-text-outline' },
+];
+
+const moreActions = [
+  { label: 'Invest S...', icon: 'home-outline' },
+  { label: 'Find Daily...', icon: 'briefcase-outline' },
+  { label: 'InstaHelp', icon: 'flash-outline' },
+  { label: 'View More', icon: 'add-circle-outline' },
+];
+
+const specialItemStyles = {
+  'Invest S...': { backgroundColor: '#B8E6FF', textColor: '#0066CC', showImage: true },
+  'InstaHelp': { backgroundColor: '#7B3FF2', textColor: '#FFFFFF' },
+  'View More': { backgroundColor: '#FFD700', textColor: '#20353A' },
+};
+
+// Special Quick Action Item Component
+function SpecialQuickActionItem({ label, icon, backgroundColor, textColor, onPress, showImage }) {
+  return (
+    <TouchableOpacity
+      style={quickActionsStyles.quickActionItem}
+      activeOpacity={0.85}
+      onPress={onPress}
+    >
+      <View style={[quickActionsStyles.quickActionIconBox, { backgroundColor }]}>
+        {showImage ? (
+          <View style={quickActionsStyles.investImageContainer}>
+            <Text style={quickActionsStyles.investLabel}>Buy</Text>
+            <Text style={quickActionsStyles.investSubLabel}>a New Home</Text>
+          </View>
+        ) : (
+          <Ionicons name={icon} size={26} color={textColor || '#20353A'} />
+        )}
+      </View>
+      <Text style={quickActionsStyles.quickActionLabel}>{label}</Text>
+    </TouchableOpacity>
+  );
+}
+
+// Quick Action Grid Component
+function QuickActionGrid({ items, onItemPress, specialItems }) {
+  return (
+    <View style={quickActionsStyles.quickActionGrid}>
+      {items.map((item) => {
+        const special = specialItems && specialItems[item.label];
+        if (special) {
+          return (
+            <SpecialQuickActionItem
+              key={item.label}
+              label={item.label}
+              icon={item.icon}
+              backgroundColor={special.backgroundColor}
+              textColor={special.textColor}
+              onPress={() => onItemPress && onItemPress(item.label)}
+              showImage={special.showImage}
+            />
+          );
+        }
+        return (
+          <TouchableOpacity
+            key={item.label}
+            style={quickActionsStyles.quickActionItem}
+            activeOpacity={0.85}
+            onPress={() => onItemPress && onItemPress(item.label)}
+          >
+            <View style={quickActionsStyles.quickActionIconBox}>
+              <Ionicons name={item.icon} size={26} color="#20353A" />
+            </View>
+            <Text style={quickActionsStyles.quickActionLabel}>{item.label}</Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
+
+// InstaHelp Modal Component
+const InstaHelpModal = ({ visible, onClose }) => {
+  return (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
+      <SafeAreaView style={instaHelpStyles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+        
+        <View style={instaHelpStyles.header}>
+          <TouchableOpacity onPress={onClose}>
+            <Ionicons name="arrow-back" size={24} color="#333" />
+          </TouchableOpacity>
+          <Text style={instaHelpStyles.headerTitle}>InstaHelp</Text>
+          <View style={{ width: 24 }} />
+        </View>
+
+        <ScrollView contentContainerStyle={instaHelpStyles.content}>
+          <View style={instaHelpStyles.badge}>
+            <Ionicons name="flash" size={16} color="#FFFFFF" />
+            <Text style={instaHelpStyles.badgeText}>10 mins</Text>
+          </View>
+
+          <Text style={instaHelpStyles.title}>Household in 10 minutes</Text>
+          <Text style={instaHelpStyles.subtitle}>Quick household help & services</Text>
+
+          <View style={instaHelpStyles.servicesGrid}>
+            {['Cleaning', 'Cooking', 'Laundry', 'Repairs'].map((service) => (
+              <TouchableOpacity key={service} style={instaHelpStyles.serviceCard} activeOpacity={0.7}>
+                <Ionicons name="briefcase-outline" size={32} color="#0d3d2f" />
+                <Text style={instaHelpStyles.serviceLabel}>{service}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <TouchableOpacity style={instaHelpStyles.bookButton}>
+            <Text style={instaHelpStyles.bookButtonText}>Book Now</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </SafeAreaView>
+    </Modal>
+  );
+};
+
+// Quick Actions Styles
+const quickActionsStyles = StyleSheet.create({
+  quickActionGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  quickActionItem: {
+    width: '23.5%',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  quickActionIconBox: {
+    width: 70,
+    height: 70,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+    borderWidth: 0.5,
+    borderColor: '#EEEEEE',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  quickActionLabel: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#333333',
+    textAlign: 'center',
+    lineHeight: 14,
+  },
+  investImageContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  investLabel: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#0066CC',
+  },
+  investSubLabel: {
+    fontSize: 10,
+    fontWeight: '500',
+    color: '#0066CC',
+    marginTop: 2,
+  },
+});
+
+// InstaHelp Styles
+const instaHelpStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEEEEE',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#333',
+  },
+  content: {
+    paddingHorizontal: 16,
+    paddingVertical: 24,
+  },
+  badge: {
+    backgroundColor: '#0d3d2f',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+    marginBottom: 12,
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    marginLeft: 6,
+    fontSize: 12,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#333',
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#999',
+    marginBottom: 24,
+  },
+  servicesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+  },
+  serviceCard: {
+    width: '48%',
+    backgroundColor: '#FFF3E0',
+    borderRadius: 12,
+    paddingVertical: 20,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  serviceLabel: {
+    marginTop: 10,
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#333',
+  },
+  bookButton: {
+    backgroundColor: '#0d3d2f',
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  bookButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+});
+
+export { 
+  PreApproveModal,
+  SecurityModal,
+  DailyHelpScreen, 
+  DeliveriesScreen, 
+  VisitorsScreen,
+  QuickActionGrid,
+  SpecialQuickActionItem,
+  InstaHelpModal,
+  homeActions,
+  moreActions,
+  specialItemStyles,
+};

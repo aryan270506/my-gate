@@ -10,6 +10,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import FurnitureScreen from './BuySell/Categories/Furniture';
+import FoodScreen from './BuySell/Categories/Food';
+import ServicesScreen from './BuySell/Categories/Services';
+import HomeDecorScreen from './BuySell/Categories/HomeDecor';
+import ElectronicsScreen from './BuySell/Categories/Electronics';
+import VehiclesScreen from './BuySell/Categories/Vehicles';
+import KidsItemsScreen from './BuySell/Categories/KidsItems';
+import OthersScreen from './BuySell/Categories/Others';
 
 const categories = [
   { label: 'Furniture', count: '1.7K+', icon: 'bed-outline' },
@@ -54,6 +62,30 @@ const listings = [
 ];
 
 export default function BuySellScreen() {
+  const [selectedCategory, setSelectedCategory] = React.useState(null);
+
+  const categoryNavigationMap = {
+    'Furniture': FurnitureScreen,
+    'Food': FoodScreen,
+    'Services': ServicesScreen,
+    'Home Decor': HomeDecorScreen,
+    'Electronics': ElectronicsScreen,
+    'Vehicles': VehiclesScreen,
+    'Kids Items': KidsItemsScreen,
+    'Others': OthersScreen,
+  };
+
+  // If a category is selected, show its screen
+  if (selectedCategory) {
+    const CategoryScreen = categoryNavigationMap[selectedCategory];
+    return (
+      <CategoryScreen
+        navigation={{
+          goBack: () => setSelectedCategory(null),
+        }}
+      />
+    );
+  }
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
@@ -83,7 +115,12 @@ export default function BuySellScreen() {
 
         <View style={styles.categoryGrid}>
           {categories.map((category) => (
-            <TouchableOpacity key={category.label} style={styles.categoryItem} activeOpacity={0.85}>
+            <TouchableOpacity
+              key={category.label}
+              style={styles.categoryItem}
+              activeOpacity={0.85}
+              onPress={() => setSelectedCategory(category.label)}
+            >
               <View style={styles.categoryIconCard}>
                 <Ionicons name={category.icon} size={34} color="#131313" />
               </View>
